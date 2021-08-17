@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import podcastFeedParser from 'podcast-feed-parser';
 import sharp from 'sharp';
 import { RawEpisode, RawPodcast } from '../models';
+import { handleCors } from '../utils/handleCors';
 
 interface Query {
   feedUrl: string;
@@ -10,7 +11,7 @@ interface Query {
   includeArtwork?: boolean;
 }
 
-export default async function (req: VercelRequest, res: VercelResponse) {
+async function getFeed(req: VercelRequest, res: VercelResponse) {
   // Validate query
   const query: Query = {
     feedUrl: req.query.feedUrl as string,
@@ -44,6 +45,7 @@ export default async function (req: VercelRequest, res: VercelResponse) {
       author: data.meta.author,
       summary: data.meta.summary || data.meta.description,
       categories: data.meta.categories,
+      feedUrl: query.feedUrl,
       artworkUrl: data.meta.imageURL,
       episodes: data.episodes.slice(0, query.episodesCount).map(
         (ep: any) =>
@@ -76,3 +78,5 @@ export default async function (req: VercelRequest, res: VercelResponse) {
     res.status(500).send('Failed to get feed');
   }
 }
+
+export default handleCors(getFeed);

@@ -1,13 +1,14 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import fetch from 'node-fetch';
 import { ITunesPodcast, SearchResult } from '../models';
+import { handleCors } from '../utils/handleCors';
 
 interface Query {
   searchText: string;
   resultsCount?: number;
 }
 
-export default async function (req: VercelRequest, res: VercelResponse) {
+async function search(req: VercelRequest, res: VercelResponse) {
   // Validate query
   const query: Query = {
     searchText: req.query.searchText as string,
@@ -40,3 +41,5 @@ export default async function (req: VercelRequest, res: VercelResponse) {
     res.status(500).send('Failed to search');
   }
 }
+
+export default handleCors(search);
