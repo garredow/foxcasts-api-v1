@@ -5,6 +5,7 @@ export type RawPodcast = {
   author: string;
   summary: string;
   categories: string[];
+  feedUrl: string;
   artworkUrl: string;
   artworkSmall?: string;
   artworkLarge?: string;
