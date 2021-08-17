@@ -35,7 +35,7 @@ export default async function (req: VercelRequest, res: VercelResponse) {
           'categories',
           'imageURL',
         ],
-        episodes: ['pubDate', 'title', 'subtitle', 'enclosure'],
+        episodes: ['pubDate', 'title', 'subtitle', 'enclosure', 'duration'],
       },
     });
 
@@ -51,6 +51,7 @@ export default async function (req: VercelRequest, res: VercelResponse) {
             date: ep.pubDate,
             title: ep.title,
             subtitle: ep.subtitle,
+            duration: ep.duration,
             fileSize: ep.enclosure.length,
             fileType: ep.enclosure.type,
             fileUrl: ep.enclosure.url,
