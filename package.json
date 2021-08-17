@@ -5,15 +5,21 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc && node dist/index.js",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Garrett Downs",
   "license": "ISC",
   "dependencies": {
-    "fastify": "^3.20.2"
+    "fastify": "^3.20.2",
+    "node-fetch": "^2.6.1",
+    "podcast-feed-parser": "^1.0.4",
+    "sharp": "^0.28.3"
   },
   "devDependencies": {
     "@types/node": "^16.6.1",
+    "@types/node-fetch": "^2.5.12",
+    "@types/sharp": "^0.28.5",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
     "eslint": "^7.32.0",
