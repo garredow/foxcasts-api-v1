@@ -4,12 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "vercel dev",
+    "start": "tsc && node dist/index.js",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Garrett Downs",
   "license": "ISC",
   "dependencies": {
+    "arg": "^5.0.1",
+    "fastify": "^3.20.2",
+    "joi": "^17.4.2",
     "node-fetch": "^2.6.1",
     "podcast-feed-parser": "^1.0.4",
     "sharp": "^0.28.3"
@@ -20,9 +24,7 @@
     "@types/sharp": "^0.28.5",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
-    "@vercel/node": "^1.12.1",
     "eslint": "^7.32.0",
-    "typescript": "^4.3.5",
-    "vercel": "^23.1.2"
+    "typescript": "^4.3.5"
   }
 }
