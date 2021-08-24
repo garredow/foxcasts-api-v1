@@ -169,3 +169,13 @@ export async function getArtwork(
     reply.status(500).send({ error: 'Failed to get artwork' });
   }
 }
+
+export async function health(
+  request: FastifyRequest<{ Querystring: GetArtworkQuery }>,
+  reply: FastifyReply
+) {
+  reply.status(200).send({
+    uptime: process.uptime(),
+    date: new Date().toISOString(),
+  });
+}

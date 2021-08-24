@@ -1,6 +1,12 @@
 import { FastifyInstance } from 'fastify';
 import Joi from 'joi';
-import { getArtwork, getFeed, getNewEpisodes, search } from './controller';
+import {
+  getArtwork,
+  getFeed,
+  getNewEpisodes,
+  health,
+  search,
+} from './controller';
 
 async function routes(fastify: FastifyInstance) {
   fastify.get(
@@ -71,6 +77,8 @@ async function routes(fastify: FastifyInstance) {
     },
     getArtwork
   );
+
+  fastify.get('/health', health);
 }
 
 export default routes;
