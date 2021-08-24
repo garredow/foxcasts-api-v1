@@ -1,8 +1,9 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import fetch from 'node-fetch';
-import podcastFeedParser from 'podcast-feed-parser';
 import sharp from 'sharp';
-import { ITunesPodcast, RawEpisode, RawPodcast, SearchResult } from './models';
+import { ITunesPodcast, SearchResult } from './models';
+import { getEpisodes } from './utils/getEpisodes';
+import { getPodcast } from './utils/getPodcast';
 
 interface SearchQuery {
   q: string;
@@ -16,9 +17,9 @@ export async function search(
   try {
     const data = await fetch(
       `https://itunes.apple.com/search?media=podcast&term=${request.query.q}`
-    ).then((res) => res.json());
+    ).then((res) => res.json() as Promise<{ results: ITunesPodcast[] }>);
 
-    const result: SearchResult[] = (data.results as ITunesPodcast[])
+    const result: SearchResult[] = data.results
       .slice(0, request.query.resultsCount)
       .map((podcast) => ({
         title: podcast.collectionName,
@@ -50,53 +51,12 @@ export async function getFeed(
     const xmlText = await fetch(request.query.feedUrl).then((res) =>
       res.text()
     );
-    const data = podcastFeedParser.getPodcastFromFeed(xmlText, {
-      fields: {
-        meta: [
-          'title',
-          'author',
-          'summary',
-          'description',
-          'categories',
-          'imageURL',
-        ],
-        episodes: ['pubDate', 'title', 'subtitle', 'enclosure', 'duration'],
-      },
+
+    const podcast = getPodcast(xmlText, {
+      episodeLimit: request.query.episodesCount,
     });
 
-    const result: RawPodcast = {
-      title: data.meta.title,
-      author: data.meta.author,
-      summary: data.meta.summary || data.meta.description,
-      categories: data.meta.categories,
-      feedUrl: request.query.feedUrl,
-      artworkUrl: data.meta.imageURL,
-      episodes: data.episodes.slice(0, request.query.episodesCount).map(
-        (ep: any) =>
-          ({
-            date: ep.pubDate,
-            title: ep.title,
-            subtitle: ep.subtitle,
-            duration: ep.duration,
-            fileSize: ep.enclosure.length,
-            fileType: ep.enclosure.type,
-            fileUrl: ep.enclosure.url,
-          } as RawEpisode)
-      ),
-    };
-
-    if (request.query.includeArtwork) {
-      const image = await fetch(result.artworkUrl).then((res) => res.buffer());
-      const [artworkSmall, artworkLarge] = await Promise.all([
-        sharp(image).resize(48).toBuffer(),
-        sharp(image).resize(256).toBuffer(),
-      ]);
-
-      result.artworkSmall = artworkSmall.toString('base64');
-      result.artworkLarge = artworkLarge.toString('base64');
-    }
-
-    reply.status(200).send(result);
+    reply.status(200).send(podcast);
   } catch (err) {
     console.error('Failed to get feed', err);
     reply.status(500).send({ error: 'Failed to get feed' });
@@ -116,27 +76,10 @@ export async function getNewEpisodes(
     const xmlText = await fetch(request.query.feedUrl).then((res) =>
       res.text()
     );
-    const data = podcastFeedParser.getPodcastFromFeed(xmlText, {
-      fields: {
-        episodes: ['pubDate', 'title', 'subtitle', 'enclosure', 'duration'],
-      },
-    });
 
-    const isoDate = request.query.afterDate.toISOString();
-    const result: RawEpisode[] = data.episodes
-      .filter((ep: any) => ep.pubDate > isoDate)
-      .map(
-        (ep: any) =>
-          ({
-            date: ep.pubDate,
-            title: ep.title,
-            subtitle: ep.subtitle,
-            duration: ep.duration,
-            fileSize: ep.enclosure.length,
-            fileType: ep.enclosure.type,
-            fileUrl: ep.enclosure.url,
-          } as RawEpisode)
-      );
+    const result = getEpisodes(xmlText, {
+      afterDate: request.query.afterDate.toISOString(),
+    });
 
     reply.code(200).send(result);
   } catch (err) {
