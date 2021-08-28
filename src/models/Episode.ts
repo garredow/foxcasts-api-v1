@@ -1,10 +1,11 @@
-export type RawEpisode = {
+export type Episode = {
   date: string; // ISO 8601
   title: string;
-  subtitle: string;
   description?: string;
   duration: number;
   fileSize: number;
   fileType: string;
   fileUrl: string;
+  chaptersUrl?: string;
+  transcriptUrl?: string;
 };

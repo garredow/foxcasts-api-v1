@@ -1,6 +1,9 @@
+import dotenv from 'dotenv';
 import Fastify from 'fastify';
 import arg from 'arg';
 import routes from './routes';
+
+dotenv.config();
 
 const args = arg({
   '--port': Number,

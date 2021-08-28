@@ -2,15 +2,15 @@ import { FastifyInstance } from 'fastify';
 import Joi from 'joi';
 import {
   getArtwork,
-  getFeed,
-  getNewEpisodes,
+  getEpisodes,
+  getPodcast,
   health,
   search,
 } from './controller';
 
 async function routes(fastify: FastifyInstance) {
   fastify.get(
-    '/search',
+    '/podcasts/search',
     {
       schema: {
         querystring: Joi.object().keys({
@@ -27,13 +27,16 @@ async function routes(fastify: FastifyInstance) {
   );
 
   fastify.get(
-    '/feed',
+    '/podcasts',
     {
       schema: {
         querystring: Joi.object().keys({
-          feedUrl: Joi.string().required(),
-          episodesCount: Joi.number().max(100).default(30).optional(),
-          includeArtwork: Joi.bool().default(false).optional(),
+          id: Joi.number().optional(),
+          feedUrl: Joi.string().when('id', {
+            is: Joi.exist(),
+            then: Joi.optional(),
+            otherwise: Joi.required(),
+          }),
         }),
       },
       validatorCompiler:
@@ -41,16 +44,22 @@ async function routes(fastify: FastifyInstance) {
         (data) =>
           (schema as Joi.ObjectSchema<any>).validate(data),
     },
-    getFeed
+    getPodcast
   );
 
   fastify.get(
-    '/newEpisodes',
+    '/episodes',
     {
       schema: {
         querystring: Joi.object().keys({
-          feedUrl: Joi.string().required(),
-          afterDate: Joi.date().iso().required(),
+          id: Joi.number().optional(),
+          feedUrl: Joi.string().when('id', {
+            is: Joi.exist(),
+            then: Joi.optional(),
+            otherwise: Joi.required(),
+          }),
+          since: Joi.date().optional(),
+          count: Joi.number().default(25).optional(),
         }),
       },
       validatorCompiler:
@@ -58,7 +67,7 @@ async function routes(fastify: FastifyInstance) {
         (data) =>
           (schema as Joi.ObjectSchema<any>).validate(data),
     },
-    getNewEpisodes
+    getEpisodes
   );
 
   fastify.get(

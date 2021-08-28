@@ -1,4 +1,4 @@
 export * from './ITunesPodcast';
-export * from './RawEpisode';
-export * from './RawPodcast';
+export * from './Podcast';
+export * from './Episode';
 export * from './SearchResult';

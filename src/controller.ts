@@ -1,9 +1,19 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import fetch from 'node-fetch';
+import PodcastIndexClient from 'podcastdx-client';
 import sharp from 'sharp';
-import { ITunesPodcast, SearchResult } from './models';
-import { getEpisodes } from './utils/getEpisodes';
-import { getPodcast } from './utils/getPodcast';
+import { Episode, ITunesPodcast, SearchResult } from './models';
+import { getPodcastFromFeed } from './utils/getPodcastFromFeed';
+import { toEpisode, toPodcast, toSearchResult } from './utils/mappers';
+import formatDate from './utils/formatDate';
+import { getEpisodesFromFeed } from './utils/getEpisodesFromFeed';
+
+const client = new PodcastIndexClient({
+  key: process.env.API_KEY,
+  secret: process.env.API_SECRET,
+  // opt-out of analytics collection
+  disableAnalytics: true,
+});
 
 interface SearchQuery {
   q: string;
@@ -15,19 +25,9 @@ export async function search(
   reply: FastifyReply
 ) {
   try {
-    const data = await fetch(
-      `https://itunes.apple.com/search?media=podcast&term=${request.query.q}`
-    ).then((res) => res.json() as Promise<{ results: ITunesPodcast[] }>);
-
-    const result: SearchResult[] = data.results
-      .slice(0, request.query.resultsCount)
-      .map((podcast) => ({
-        title: podcast.collectionName,
-        author: podcast.artistName,
-        itunesId: podcast.collectionId,
-        feedUrl: podcast.feedUrl,
-        artworkUrl: podcast.artworkUrl100,
-      }));
+    const result: SearchResult[] = await client
+      .search(request.query.q)
+      .then((res) => res.feeds.map((a) => toSearchResult(a)));
 
     reply.code(200).send(result);
   } catch (err) {
@@ -36,55 +36,116 @@ export async function search(
   }
 }
 
-interface GetFeedQuery {
-  feedUrl: string;
-  episodesCount: number;
-  includeArtwork: boolean;
-  artworkSize: number;
+interface GetPodcastQuery {
+  id?: number;
+  feedUrl?: string;
 }
 
-export async function getFeed(
-  request: FastifyRequest<{ Querystring: GetFeedQuery }>,
+export async function getPodcast(
+  request: FastifyRequest<{ Querystring: GetPodcastQuery }>,
   reply: FastifyReply
 ) {
   try {
-    const xmlText = await fetch(request.query.feedUrl).then((res) =>
-      res.text()
-    );
+    let podcast;
 
-    const podcast = getPodcast(xmlText, {
-      episodeLimit: request.query.episodesCount,
-    });
+    // Try Podcast Index ID
+    if (request.query.id) {
+      await client.podcastById(request.query.id).then((res) => {
+        if (res.feed?.id) {
+          podcast = toPodcast(res.feed);
+        }
+      });
+    }
 
-    reply.status(200).send(podcast);
+    // Try Feed URL
+    if (!podcast) {
+      await client.podcastByUrl(request.query.feedUrl!).then((res) => {
+        if (res.feed?.id) {
+          podcast = toPodcast(res.feed);
+        }
+      });
+    }
+
+    // Manually parse the feed XML
+    if (!podcast) {
+      const xmlText = await fetch(request.query.feedUrl!).then((res) =>
+        res.text()
+      );
+
+      podcast = getPodcastFromFeed(xmlText, {
+        episodeLimit: 0,
+      });
+    }
+
+    reply.code(200).send(podcast);
   } catch (err) {
-    console.error('Failed to get feed', err);
-    reply.status(500).send({ error: 'Failed to get feed' });
+    console.error('Failed to search', err);
+    reply.code(500).send({ error: 'Failed to search' });
   }
 }
 
-interface GetNewEpisodesQuery {
-  feedUrl: string;
-  afterDate: Date;
+interface GetEpisodesQuery {
+  id?: number;
+  feedUrl?: string;
+  since?: string;
+  count: number;
 }
 
-export async function getNewEpisodes(
-  request: FastifyRequest<{ Querystring: GetNewEpisodesQuery }>,
+export async function getEpisodes(
+  request: FastifyRequest<{ Querystring: GetEpisodesQuery }>,
   reply: FastifyReply
 ) {
   try {
-    const xmlText = await fetch(request.query.feedUrl).then((res) =>
-      res.text()
-    );
+    let episodes: Episode[] | null = null;
 
-    const result = getEpisodes(xmlText, {
-      afterDate: request.query.afterDate.toISOString(),
-    });
+    // Try Podcast Index ID
+    if (request.query.id) {
+      await client
+        .episodesByFeedId(request.query.id, {
+          max: request.query.count,
+          since: request.query.since
+            ? formatDate.toNumeric(request.query.since)
+            : undefined,
+        })
+        .then((res) => {
+          if (res.items) {
+            episodes = res.items.map((a) => toEpisode(a));
+          }
+        });
+    }
 
-    reply.code(200).send(result);
+    // Try Feed URL
+    if (episodes === null) {
+      await client
+        .episodesByFeedUrl(request.query.feedUrl!, {
+          max: request.query.count,
+          since: request.query.since
+            ? formatDate.toNumeric(request.query.since)
+            : undefined,
+        })
+        .then((res) => {
+          if (res.items) {
+            episodes = res.items.map((a) => toEpisode(a));
+          }
+        });
+    }
+
+    // Manually parse the feed XML
+    if (episodes === null) {
+      const xmlText = await fetch(request.query.feedUrl!).then((res) =>
+        res.text()
+      );
+
+      episodes = getEpisodesFromFeed(xmlText, {
+        episodeLimit: request.query.count,
+        since: request.query.since,
+      });
+    }
+
+    reply.code(200).send(episodes);
   } catch (err) {
-    console.error('Failed to get episodes', err);
-    reply.status(500).send({ error: 'Failed to get episodes' });
+    console.error('Failed to search', err);
+    reply.code(500).send({ error: 'Failed to search' });
   }
 }
 

@@ -12,9 +12,11 @@
   "license": "ISC",
   "dependencies": {
     "arg": "^5.0.1",
+    "dotenv": "^8.6.0",
     "fastify": "^3.20.2",
     "joi": "^17.4.2",
     "node-fetch": "^2.6.1",
+    "podcastdx-client": "^5.0.0",
     "sharp": "^0.28.3",
     "xmldom": "^0.6.0"
   },
