@@ -54,7 +54,7 @@ async function routes(fastify: FastifyInstance) {
       schema: {
         querystring: Joi.object().keys({
           podcastId: Joi.number().optional(),
-          feedUrl: Joi.string().when('id', {
+          feedUrl: Joi.string().when('podcastId', {
             is: Joi.exist(),
             then: Joi.optional(),
             otherwise: Joi.required(),
@@ -72,14 +72,16 @@ async function routes(fastify: FastifyInstance) {
   );
 
   fastify.get(
-    '/episodes/:episodeId/chapters',
+    '/chapters',
     {
       schema: {
-        params: Joi.object().keys({
-          episodeId: Joi.number().required(),
-        }),
         querystring: Joi.object().keys({
-          fileUrl: Joi.optional(),
+          episodeId: Joi.number().optional(),
+          fileUrl: Joi.string().when('episodeId', {
+            is: Joi.exist(),
+            then: Joi.optional(),
+            otherwise: Joi.required(),
+          }),
         }),
       },
       validatorCompiler:

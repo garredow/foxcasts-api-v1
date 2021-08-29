@@ -88,7 +88,7 @@ export async function getPodcast(
 }
 
 interface GetEpisodesQuery {
-  id?: number;
+  podcastId?: number;
   feedUrl?: string;
   since?: string;
   count: number;
@@ -102,9 +102,9 @@ export async function getEpisodes(
     let episodes: Episode[] | null = null;
 
     // Try Podcast Index ID
-    if (request.query.id) {
+    if (request.query.podcastId) {
       await client
-        .episodesByFeedId(request.query.id, {
+        .episodesByFeedId(request.query.podcastId, {
           max: request.query.count,
           since: request.query.since
             ? formatDate.toNumeric(request.query.since)
@@ -152,27 +152,22 @@ export async function getEpisodes(
   }
 }
 
-interface ChaptersParams {
-  episodeId: number;
-}
 interface ChaptersQuery {
+  episodeId?: number;
   fileUrl?: string;
 }
 
 export async function getChapters(
-  request: FastifyRequest<{
-    Params: ChaptersParams;
-    Querystring: ChaptersQuery;
-  }>,
+  request: FastifyRequest<{ Querystring: ChaptersQuery }>,
   reply: FastifyReply
 ) {
   try {
-    if (request.params.episodeId === 0 && !request.query.fileUrl) {
+    if (request.query.episodeId === 0 && !request.query.fileUrl) {
       return reply.status(200).send([]);
     }
 
-    const episode = request.params.episodeId
-      ? (await client.episodeById(request.params.episodeId)).episode
+    const episode = request.query.episodeId
+      ? (await client.episodeById(request.query.episodeId)).episode
       : null;
 
     if (episode?.chaptersUrl) {
