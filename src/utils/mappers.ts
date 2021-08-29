@@ -31,6 +31,7 @@ export function toPodcast(source: PIApiPodcast): Podcast {
 
 export function toEpisode(source: PIApiEpisodeInfo): Episode {
   return {
+    podexId: source.id,
     date: formatDate.toISOString(source.datePublished),
     title: source.title,
     description: source.description,

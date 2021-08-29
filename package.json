@@ -15,12 +15,14 @@
     "dotenv": "^8.6.0",
     "fastify": "^3.20.2",
     "joi": "^17.4.2",
+    "jsmediatags": "^3.9.7",
     "node-fetch": "^2.6.1",
     "podcastdx-client": "^5.0.0",
     "sharp": "^0.28.3",
     "xmldom": "^0.6.0"
   },
   "devDependencies": {
+    "@types/jsmediatags": "^3.9.3",
     "@types/node": "^16.6.1",
     "@types/node-fetch": "^2.5.12",
     "@types/sharp": "^0.28.5",

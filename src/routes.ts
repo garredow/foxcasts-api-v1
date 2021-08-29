@@ -3,6 +3,7 @@ import Joi from 'joi';
 import {
   getArtwork,
   getEpisodes,
+  getChapters,
   getPodcast,
   health,
   search,
@@ -14,7 +15,7 @@ async function routes(fastify: FastifyInstance) {
     {
       schema: {
         querystring: Joi.object().keys({
-          q: Joi.string().required(),
+          query: Joi.string().required(),
           resultsCount: Joi.number().max(50).default(10).optional(),
         }),
       },
@@ -52,7 +53,7 @@ async function routes(fastify: FastifyInstance) {
     {
       schema: {
         querystring: Joi.object().keys({
-          id: Joi.number().optional(),
+          podcastId: Joi.number().optional(),
           feedUrl: Joi.string().when('id', {
             is: Joi.exist(),
             then: Joi.optional(),
@@ -68,6 +69,25 @@ async function routes(fastify: FastifyInstance) {
           (schema as Joi.ObjectSchema<any>).validate(data),
     },
     getEpisodes
+  );
+
+  fastify.get(
+    '/episodes/:episodeId/chapters',
+    {
+      schema: {
+        params: Joi.object().keys({
+          episodeId: Joi.number().required(),
+        }),
+        querystring: Joi.object().keys({
+          fileUrl: Joi.optional(),
+        }),
+      },
+      validatorCompiler:
+        ({ schema }) =>
+        (data) =>
+          (schema as Joi.ObjectSchema<any>).validate(data),
+    },
+    getChapters
   );
 
   fastify.get(

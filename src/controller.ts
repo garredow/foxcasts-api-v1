@@ -2,11 +2,14 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import fetch from 'node-fetch';
 import PodcastIndexClient from 'podcastdx-client';
 import sharp from 'sharp';
+import jsmediatags from 'jsmediatags';
 import { Episode, ITunesPodcast, SearchResult } from './models';
 import { getPodcastFromFeed } from './utils/getPodcastFromFeed';
 import { toEpisode, toPodcast, toSearchResult } from './utils/mappers';
 import formatDate from './utils/formatDate';
 import { getEpisodesFromFeed } from './utils/getEpisodesFromFeed';
+import { cleanUrl } from './utils/cleanUrl';
+import { tryParseChapters } from './utils/tryParseChapters';
 
 const client = new PodcastIndexClient({
   key: process.env.API_KEY,
@@ -16,7 +19,7 @@ const client = new PodcastIndexClient({
 });
 
 interface SearchQuery {
-  q: string;
+  query: string;
   resultsCount: number;
 }
 
@@ -26,7 +29,7 @@ export async function search(
 ) {
   try {
     const result: SearchResult[] = await client
-      .search(request.query.q)
+      .search(request.query.query)
       .then((res) => res.feeds.map((a) => toSearchResult(a)));
 
     reply.code(200).send(result);
@@ -146,6 +149,53 @@ export async function getEpisodes(
   } catch (err) {
     console.error('Failed to search', err);
     reply.code(500).send({ error: 'Failed to search' });
+  }
+}
+
+interface ChaptersParams {
+  episodeId: number;
+}
+interface ChaptersQuery {
+  fileUrl?: string;
+}
+
+export async function getChapters(
+  request: FastifyRequest<{
+    Params: ChaptersParams;
+    Querystring: ChaptersQuery;
+  }>,
+  reply: FastifyReply
+) {
+  try {
+    if (request.params.episodeId === 0 && !request.query.fileUrl) {
+      return reply.status(200).send([]);
+    }
+
+    const episode = request.params.episodeId
+      ? (await client.episodeById(request.params.episodeId)).episode
+      : null;
+
+    if (episode?.chaptersUrl) {
+      const result = await fetch(episode.chaptersUrl).then((res) => res.json());
+      return reply.status(200).send(result?.chapters || []);
+    }
+
+    // jsmediatags doesn't seem to like a lot of redirects, so let's
+    // try to clean up this URL a bit
+    const cleanerUrl = cleanUrl(
+      episode?.enclosureUrl || request.query.fileUrl!
+    );
+    const id3Obj = await new Promise((resolve, reject) => {
+      new jsmediatags.Reader(cleanerUrl).setTagsToRead(['CHAP']).read({
+        onSuccess: resolve,
+        onError: reject,
+      });
+    });
+    const chapters = tryParseChapters(id3Obj);
+    reply.status(200).send(chapters);
+  } catch (err) {
+    console.error('Failed to get metadata', err);
+    reply.status(500).send({ error: 'Failed to get artwork' });
   }
 }
 
