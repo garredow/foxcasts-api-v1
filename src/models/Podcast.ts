@@ -1,5 +1,3 @@
-import { Episode } from './Episode';
-
 export type Podcast = {
   podexId?: number;
   itunesId?: number;
@@ -7,7 +5,7 @@ export type Podcast = {
   author: string;
   description?: string;
   artworkUrl: string;
+  feedUrl: string;
   lastUpdated?: number;
   categories: string[];
-  episodes?: Episode[];
 };

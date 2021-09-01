@@ -24,6 +24,7 @@ export function toPodcast(source: PIApiPodcast): Podcast {
     author: source.author,
     description: source.description,
     artworkUrl: source.artwork,
+    feedUrl: source.url,
     lastUpdated: source.lastUpdateTime,
     categories: source.categories ? Object.values(source.categories) : [],
   };
@@ -32,6 +33,7 @@ export function toPodcast(source: PIApiPodcast): Podcast {
 export function toEpisode(source: PIApiEpisodeInfo): Episode {
   return {
     podexId: source.id,
+    guid: source.guid,
     date: formatDate.toISOString(source.datePublished),
     title: source.title,
     description: source.description,

@@ -1,5 +1,6 @@
 export type Episode = {
   podexId?: number;
+  guid: string;
   date: string; // ISO 8601
   title: string;
   description?: string;

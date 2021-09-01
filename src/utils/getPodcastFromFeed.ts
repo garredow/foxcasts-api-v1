@@ -3,46 +3,12 @@ import { DOMParser } from 'xmldom';
 import { getDurationInSeconds } from './getDurationInSeconds';
 import xml from './xml';
 
-interface Options {
-  episodeLimit?: number;
-  includeDescription?: boolean;
-}
-
-export function getPodcastFromFeed(
-  xmlString: string,
-  { episodeLimit = 50, includeDescription = false }: Options
-): Podcast {
+export async function getPodcastFromFeed(feedUrl: string): Promise<Podcast> {
+  const xmlString = await fetch(feedUrl).then((res) => res.text());
   const xmlDoc = new DOMParser().parseFromString(xmlString, 'text/xml');
 
-  let episodes: Episode[] = [];
+  // Clean up XML for faster querying below
   const episodeNodes = Array.from(xmlDoc.getElementsByTagName('item'));
-  if (episodeLimit > 0) {
-    episodeNodes.slice(0, episodeLimit).forEach((epNode) => {
-      try {
-        episodes.push({
-          date: new Date(xml.getText(epNode, 'pubDate') || '').toISOString(),
-          title: xml.getText(epNode, 'itunes:title', 'title') || '',
-          description: includeDescription
-            ? xml.getText(epNode, 'itunes:description', 'description') ||
-              undefined
-            : undefined,
-          duration: getDurationInSeconds(
-            xml.getText(epNode, 'itunes:duration', 'duration') || ''
-          ),
-          fileSize: parseInt(
-            xml.getAttribute(epNode, 'enclosure', 'length') || '',
-            10
-          ),
-          fileType: xml.getAttribute(epNode, 'enclosure', 'type') || '',
-          fileUrl: xml.getAttribute(epNode, 'enclosure', 'url') || '',
-        });
-      } catch (err) {
-        console.log('Error parsing episode', err, epNode);
-      }
-    });
-
-    // Clean up XML for faster querying below
-  }
   episodeNodes.forEach((epNode) => xmlDoc.removeChild(epNode));
 
   const podTitle = xml.getText(xmlDoc, 'title');
@@ -60,8 +26,8 @@ export function getPodcastFromFeed(
     title: podTitle,
     author: podAuthor,
     description: podSummary || '',
+    feedUrl: feedUrl,
     artworkUrl: podArtwork,
-    episodes,
     categories: [],
   };
 

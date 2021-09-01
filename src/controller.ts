@@ -71,13 +71,7 @@ export async function getPodcast(
 
     // Manually parse the feed XML
     if (!podcast) {
-      const xmlText = await fetch(request.query.feedUrl!).then((res) =>
-        res.text()
-      );
-
-      podcast = getPodcastFromFeed(xmlText, {
-        episodeLimit: 0,
-      });
+      podcast = await getPodcastFromFeed(request.query.feedUrl!);
     }
 
     reply.code(200).send(podcast);
@@ -135,11 +129,7 @@ export async function getEpisodes(
 
     // Manually parse the feed XML
     if (episodes === null) {
-      const xmlText = await fetch(request.query.feedUrl!).then((res) =>
-        res.text()
-      );
-
-      episodes = getEpisodesFromFeed(xmlText, {
+      episodes = await getEpisodesFromFeed(request.query.feedUrl!, {
         episodeLimit: request.query.count,
         since: request.query.since,
       });

@@ -9,10 +9,11 @@ interface Options {
   includeDescription?: boolean;
 }
 
-export function getEpisodesFromFeed(
-  xmlString: string,
+export async function getEpisodesFromFeed(
+  feedUrl: string,
   { episodeLimit = 50, includeDescription = false, ...options }: Options
-): Episode[] {
+): Promise<Episode[]> {
+  const xmlString = await fetch(feedUrl).then((res) => res.text());
   const xmlDoc = new DOMParser().parseFromString(xmlString, 'text/xml');
 
   if (episodeLimit === 0) {
@@ -35,7 +36,16 @@ export function getEpisodesFromFeed(
     }
 
     try {
+      const guid =
+        xml.getText(episodeNodes[i], 'guid') ||
+        xml.getAttribute(episodeNodes[i], 'enclosure', 'url') ||
+        `${xml.getText(xmlDoc, 'title')}_${new Date(
+          xml.getText(episodeNodes[i], 'pubDate') || ''
+        ).toISOString()}`;
+      if (!guid) continue;
+
       episodes.push({
+        guid,
         date,
         title: xml.getText(episodeNodes[i], 'itunes:title', 'title') || '',
         description: includeDescription
