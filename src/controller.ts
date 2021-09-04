@@ -173,9 +173,11 @@ export async function getChapters(
 
     // jsmediatags doesn't seem to like a lot of redirects, so let's
     // try to clean up this URL a bit
-    const cleanerUrl = cleanUrl(
-      episode?.enclosureUrl || request.query.fileUrl!
-    );
+    const url = episode?.enclosureUrl || request.query.fileUrl;
+    if (!url) {
+      return reply.status(200).send([]);
+    }
+    const cleanerUrl = cleanUrl(url);
     const id3Obj = await new Promise((resolve, reject) => {
       new jsmediatags.Reader(cleanerUrl).setTagsToRead(['CHAP']).read({
         onSuccess: resolve,
