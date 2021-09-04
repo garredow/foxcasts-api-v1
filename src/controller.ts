@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import PodcastIndexClient from 'podcastdx-client';
 import sharp from 'sharp';
 import jsmediatags from 'jsmediatags';
-import { Episode, ITunesPodcast, SearchResult } from './models';
+import { Episode, Podcast, SearchResult } from './models';
 import { getPodcastFromFeed } from './utils/getPodcastFromFeed';
 import { toEpisode, toPodcast, toSearchResult } from './utils/mappers';
 import formatDate from './utils/formatDate';
@@ -20,7 +20,7 @@ const client = new PodcastIndexClient({
 
 interface SearchQuery {
   query: string;
-  resultsCount: number;
+  count: number;
 }
 
 export async function search(
@@ -29,13 +29,15 @@ export async function search(
 ) {
   try {
     const result: SearchResult[] = await client
-      .search(request.query.query)
+      .search(request.query.query, { max: request.query.count })
       .then((res) => res.feeds.map((a) => toSearchResult(a)));
 
     reply.code(200).send(result);
   } catch (err) {
     console.error('Failed to search', err);
-    reply.code(500).send({ error: 'Failed to search' });
+    reply
+      .code(500)
+      .send({ statusCode: 500, error: 'Failed to search', message: '' });
   }
 }
 
@@ -49,7 +51,7 @@ export async function getPodcast(
   reply: FastifyReply
 ) {
   try {
-    let podcast;
+    let podcast: Podcast | undefined;
 
     // Try Podcast Index ID
     if (request.query.id) {
@@ -76,8 +78,10 @@ export async function getPodcast(
 
     reply.code(200).send(podcast);
   } catch (err) {
-    console.error('Failed to search', err);
-    reply.code(500).send({ error: 'Failed to search' });
+    console.error('Failed to get podcast', err);
+    reply
+      .code(500)
+      .send({ statusCode: 500, error: 'Failed to get podcast', message: '' });
   }
 }
 
@@ -137,8 +141,10 @@ export async function getEpisodes(
 
     reply.code(200).send(episodes);
   } catch (err) {
-    console.error('Failed to search', err);
-    reply.code(500).send({ error: 'Failed to search' });
+    console.error('Failed to get episodes', err);
+    reply
+      .code(500)
+      .send({ statusCode: 500, error: 'Failed to get episodes', message: '' });
   }
 }
 
@@ -179,8 +185,10 @@ export async function getChapters(
     const chapters = tryParseChapters(id3Obj);
     reply.status(200).send(chapters);
   } catch (err) {
-    console.error('Failed to get metadata', err);
-    reply.status(500).send({ error: 'Failed to get artwork' });
+    console.error('Failed to get chapters', err);
+    reply
+      .status(500)
+      .send({ statusCode: 500, error: 'Failed to get chapters', message: '' });
   }
 }
 
@@ -205,7 +213,9 @@ export async function getArtwork(
     reply.status(200).header('Content-Type', 'image/png').send(artwork);
   } catch (err) {
     console.error('Failed to get artwork', err);
-    reply.status(500).send({ error: 'Failed to get artwork' });
+    reply
+      .status(500)
+      .send({ statusCode: 500, error: 'Failed to get artwork', message: '' });
   }
 }
 
