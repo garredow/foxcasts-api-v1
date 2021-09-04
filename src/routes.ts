@@ -13,6 +13,7 @@ async function routes(fastify: FastifyInstance) {
   fastify.get(
     '/podcasts/search',
     {
+      preValidation: [(fastify as any).authenticate],
       schema: {
         tags: ['Podcasts'],
         summary: 'Search for a podcast',
@@ -44,6 +45,15 @@ async function routes(fastify: FastifyInstance) {
               message: { type: 'string' },
             },
           },
+          401: {
+            description: 'Unauthorized response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
           500: {
             description: 'Failure response',
             type: 'object',
@@ -54,6 +64,11 @@ async function routes(fastify: FastifyInstance) {
             },
           },
         },
+        security: [
+          {
+            apiKey: [],
+          },
+        ],
       },
       validatorCompiler:
         ({ schema }) =>
@@ -65,6 +80,7 @@ async function routes(fastify: FastifyInstance) {
   fastify.get(
     '/podcasts',
     {
+      preValidation: [(fastify as any).authenticate],
       schema: {
         tags: ['Podcasts'],
         summary: 'Get a podcast by its ID or feed URL',
@@ -103,6 +119,15 @@ async function routes(fastify: FastifyInstance) {
               message: { type: 'string' },
             },
           },
+          401: {
+            description: 'Unauthorized response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
           500: {
             description: 'Failure response',
             type: 'object',
@@ -113,6 +138,11 @@ async function routes(fastify: FastifyInstance) {
             },
           },
         },
+        security: [
+          {
+            apiKey: [],
+          },
+        ],
       },
       validatorCompiler:
         ({ schema }) =>
@@ -124,6 +154,7 @@ async function routes(fastify: FastifyInstance) {
   fastify.get(
     '/episodes',
     {
+      preValidation: [(fastify as any).authenticate],
       schema: {
         tags: ['Episodes'],
         summary: 'Get a list of recent episodes by podcast ID or feed URL',
@@ -167,6 +198,15 @@ async function routes(fastify: FastifyInstance) {
               message: { type: 'string' },
             },
           },
+          401: {
+            description: 'Unauthorized response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
           500: {
             description: 'Failure response',
             type: 'object',
@@ -177,6 +217,11 @@ async function routes(fastify: FastifyInstance) {
             },
           },
         },
+        security: [
+          {
+            apiKey: [],
+          },
+        ],
       },
       validatorCompiler:
         ({ schema }) =>
@@ -188,6 +233,7 @@ async function routes(fastify: FastifyInstance) {
   fastify.get(
     '/chapters',
     {
+      preValidation: [(fastify as any).authenticate],
       schema: {
         tags: ['Episodes'],
         summary: 'Get a list of chapters for an episode if available',
@@ -221,6 +267,15 @@ async function routes(fastify: FastifyInstance) {
               message: { type: 'string' },
             },
           },
+          401: {
+            description: 'Unauthorized response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
           500: {
             description: 'Failure response',
             type: 'object',
@@ -231,6 +286,11 @@ async function routes(fastify: FastifyInstance) {
             },
           },
         },
+        security: [
+          {
+            apiKey: [],
+          },
+        ],
       },
       validatorCompiler:
         ({ schema }) =>
@@ -242,6 +302,7 @@ async function routes(fastify: FastifyInstance) {
   fastify.get(
     '/artwork',
     {
+      preValidation: [(fastify as any).authenticate],
       schema: {
         tags: ['Podcasts'],
         summary: 'Get the artwork for a podcast in a desired size',
@@ -265,6 +326,15 @@ async function routes(fastify: FastifyInstance) {
               message: { type: 'string' },
             },
           },
+          401: {
+            description: 'Unauthorized response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
           500: {
             description: 'Failure response',
             type: 'object',
@@ -275,6 +345,11 @@ async function routes(fastify: FastifyInstance) {
             },
           },
         },
+        security: [
+          {
+            apiKey: [],
+          },
+        ],
       },
       validatorCompiler:
         ({ schema }) =>

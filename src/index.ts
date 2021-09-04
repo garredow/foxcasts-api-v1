@@ -1,18 +1,31 @@
-import dotenv from 'dotenv';
 import Fastify from 'fastify';
 import swagger from 'fastify-swagger';
 import arg from 'arg';
 import joiToJson from 'joi-to-json';
 import routes from './routes';
-
-dotenv.config();
+import { config } from './utils/config';
+import authenticate from './authenticate';
 
 const args = arg({
   '--port': Number,
   '-p': '--port',
 });
 
-const server = Fastify({ logger: true });
+const server = Fastify({
+  logger: {
+    name: 'foxcasts-api',
+    level: config.logger.level,
+    file: config.logger.file,
+    formatters: {
+      level(label: any, number: any) {
+        return { level: label };
+      },
+    },
+    timestamp: () => `,"time":"${new Date().toISOString()}"`,
+  } as any, // name isn't in the typings?
+});
+
+server.register(authenticate);
 
 server.register(swagger, {
   routePrefix: '/swagger',
@@ -21,8 +34,8 @@ server.register(swagger, {
       title: 'Foxcasts API',
       version: '0.1.0',
     },
-    host: process.env.SWAGGER_HOST,
-    schemes: [process.env.SWAGGER_SCHEME || 'https'],
+    host: config.swagger.host,
+    schemes: config.swagger.schemes,
     consumes: ['application/json'],
     produces: ['application/json', 'image/png'],
     tags: [
@@ -30,6 +43,13 @@ server.register(swagger, {
       { name: 'Episodes', description: 'Episode related endpoints' },
       { name: 'Meta', description: 'API related endpoints' },
     ],
+    securityDefinitions: {
+      apiKey: {
+        type: 'apiKey',
+        name: 'Authorization',
+        in: 'header',
+      },
+    },
   },
   uiConfig: {
     docExpansion: 'list',
@@ -52,6 +72,7 @@ server.register(swagger, {
     return transformed;
   },
 });
+
 server.register(routes);
 
 server.ready((err) => {

@@ -10,10 +10,11 @@ import formatDate from './utils/formatDate';
 import { getEpisodesFromFeed } from './utils/getEpisodesFromFeed';
 import { cleanUrl } from './utils/cleanUrl';
 import { tryParseChapters } from './utils/tryParseChapters';
+import { config } from './utils/config';
 
 const client = new PodcastIndexClient({
-  key: process.env.API_KEY,
-  secret: process.env.API_SECRET,
+  key: config.podcastIndex.apiKey,
+  secret: config.podcastIndex.apiSecret,
   // opt-out of analytics collection
   disableAnalytics: true,
 });
@@ -221,10 +222,7 @@ export async function getArtwork(
   }
 }
 
-export async function health(
-  request: FastifyRequest<{ Querystring: GetArtworkQuery }>,
-  reply: FastifyReply
-) {
+export async function health(request: FastifyRequest, reply: FastifyReply) {
   reply.status(200).send({
     uptime: process.uptime(),
     date: new Date().toISOString(),
