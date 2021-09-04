@@ -313,7 +313,6 @@ async function routes(fastify: FastifyInstance) {
         response: {
           200: {
             description: 'Successful response',
-            content: 'image/png',
             type: 'string',
             format: 'binary',
           },
