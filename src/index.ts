@@ -22,7 +22,7 @@ server.register(swagger, {
       version: '0.1.0',
     },
     host: process.env.SWAGGER_HOST,
-    schemes: ['http', 'https'],
+    schemes: [process.env.SWAGGER_SCHEME || 'https'],
     consumes: ['application/json'],
     produces: ['application/json', 'image/png'],
     tags: [
