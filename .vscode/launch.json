@@ -10,5 +10,17 @@
             "request": "launch",
             "type": "node-terminal"
         },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Run E2E",
+            "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/tap",
+            "runtimeArgs": [
+                "--ts",
+                "--no-coverage",
+                "--reporter=list",
+                "--no-timeout"
+            ]
+        }
     ]
 }

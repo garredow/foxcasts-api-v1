@@ -6,7 +6,10 @@
   "scripts": {
     "start": "tsc && node dist/index.js",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "e2e": "tap --ts --no-coverage --reporter=list",
+    "e2e:coverage": "tap --ts --reporter=list",
+    "e2e:report": "tap --ts --coverage-report=html --no-browser --nyc-arg=--report-dir=e2e-coverage"
   },
   "author": "Garrett Downs",
   "license": "ISC",
@@ -30,11 +33,15 @@
     "@types/node": "^16.6.1",
     "@types/node-fetch": "^2.5.12",
     "@types/sharp": "^0.28.5",
+    "@types/tap": "^15.0.5",
     "@types/xmldom": "^0.1.31",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
     "eslint": "^7.32.0",
     "jsonwebtoken": "^8.5.1",
+    "pino-pretty": "^6.0.0",
+    "tap": "^15.0.9",
+    "ts-node": "^9.1.1",
     "typescript": "^4.3.5"
   }
 }
