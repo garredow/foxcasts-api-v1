@@ -1,0 +1,19 @@
+version: 2.1
+executors:
+  my-custom-executor:
+    docker:
+      - image: cimg/node:lts
+
+jobs:
+  build-my-project:
+    executor: my-custom-executor
+    steps:
+      - checkout
+      - run: |
+          npm ci
+          npm run build
+
+workflows:
+  my-custom-workflow:
+    jobs:
+      - build-my-project
