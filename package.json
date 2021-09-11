@@ -8,6 +8,7 @@
     "build": "tsc",
     "test": "jest tests",
     "test:coverage": "jest tests --coverage",
+    "test:ci": "jest tests --coverage --ci --runInBand --reporters=default --reporters=jest-junit",
     "e2e": "tap --ts --no-coverage --reporter=list e2e",
     "e2e:coverage": "tap --ts --reporter=list e2e",
     "e2e:report": "tap --ts --coverage-report=html --no-browser --nyc-arg=--report-dir=e2e-coverage e2e"
@@ -45,6 +46,7 @@
     "babel-jest": "^27.1.1",
     "eslint": "^7.32.0",
     "jest": "^27.1.1",
+    "jest-junit": "^12.2.0",
     "jsonwebtoken": "^8.5.1",
     "pino-pretty": "^6.0.0",
     "tap": "^15.0.9",
