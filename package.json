@@ -6,10 +6,10 @@
   "scripts": {
     "start": "tsc && node dist/index.js",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "e2e": "tap --ts --no-coverage --reporter=list",
-    "e2e:coverage": "tap --ts --reporter=list",
-    "e2e:report": "tap --ts --coverage-report=html --no-browser --nyc-arg=--report-dir=e2e-coverage"
+    "test": "jest tests",
+    "e2e": "tap --ts --no-coverage --reporter=list e2e",
+    "e2e:coverage": "tap --ts --reporter=list e2e",
+    "e2e:report": "tap --ts --coverage-report=html --no-browser --nyc-arg=--report-dir=e2e-coverage e2e"
   },
   "author": "Garrett Downs",
   "license": "ISC",
@@ -29,6 +29,10 @@
     "xmldom": "^0.6.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.15.5",
+    "@babel/preset-env": "^7.15.6",
+    "@babel/preset-typescript": "^7.15.0",
+    "@types/jest": "^27.0.1",
     "@types/jsmediatags": "^3.9.3",
     "@types/node": "^16.6.1",
     "@types/node-fetch": "^2.5.12",
@@ -37,7 +41,9 @@
     "@types/xmldom": "^0.1.31",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
+    "babel-jest": "^27.1.1",
     "eslint": "^7.32.0",
+    "jest": "^27.1.1",
     "jsonwebtoken": "^8.5.1",
     "pino-pretty": "^6.0.0",
     "tap": "^15.0.9",
