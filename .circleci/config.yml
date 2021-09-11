@@ -5,15 +5,29 @@ executors:
       - image: cimg/node:lts
 
 jobs:
-  build-my-project:
+  test:
     executor: my-custom-executor
     steps:
       - checkout
-      - run: |
-          npm ci
-          npm run build
+      - run:
+          name: 'Install'
+          command: npm ci
+      - run:
+          name: 'Test'
+          command: npm run e2e
+  build:
+    executor: my-custom-executor
+    steps:
+      - checkout
+      - run:
+          name: 'Install'
+          command: npm ci
+      - run:
+          name: 'Build'
+          command: npm run build
 
 workflows:
   my-custom-workflow:
     jobs:
-      - build-my-project
+      - build
+      - test
