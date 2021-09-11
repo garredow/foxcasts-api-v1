@@ -1,22 +1,12 @@
 version: 2.1
 executors:
-  my-custom-executor:
+  node-lts:
     docker:
       - image: cimg/node:lts
 
 jobs:
-  test:
-    executor: my-custom-executor
-    steps:
-      - checkout
-      - run:
-          name: 'Install'
-          command: npm ci
-      - run:
-          name: 'Test'
-          command: npm run e2e
   build:
-    executor: my-custom-executor
+    executor: node-lts
     steps:
       - checkout
       - run:
@@ -25,9 +15,42 @@ jobs:
       - run:
           name: 'Build'
           command: npm run build
+  unit:
+    executor: node-lts
+    steps:
+      - checkout
+      - run:
+          name: 'pwd'
+          command: pwd
+      - run:
+          name: 'list'
+          command: ls -la
+      - run:
+          name: list
+          command: ls -la /tmp/_circleci_local_build_repo
+      - run:
+          name: list
+          command: ls -la /home/circleci/project
+      - run:
+          name: 'Install'
+          command: npm ci
+      - run:
+          name: 'Test'
+          command: npm run test
+  e2e:
+    executor: node-lts
+    steps:
+      - checkout
+      - run:
+          name: 'Install'
+          command: npm ci
+      - run:
+          name: 'Test'
+          command: npm run e2e
 
 workflows:
-  my-custom-workflow:
+  build-and-test:
     jobs:
       - build
-      - test
+      - unit
+      - e2e
