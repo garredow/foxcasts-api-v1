@@ -1,0 +1,52 @@
+version: 2.1
+executors:
+  node-lts:
+    docker:
+      - image: cimg/node:lts
+
+jobs:
+  build:
+    executor: node-lts
+    steps:
+      - checkout
+      - run:
+          name: 'Install'
+          command: npm ci
+      - run:
+          name: 'Build'
+          command: npm run build
+  unit:
+    executor: node-lts
+    steps:
+      - checkout
+      - run:
+          name: 'Install'
+          command: npm ci
+      - run:
+          name: Test
+          command: npm run test:ci
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/junit/
+      - store_test_results:
+          path: ./reports/junit/
+      - store_artifacts:
+          path: ./reports/junit
+      - store_artifacts:
+          path: coverage
+  e2e:
+    executor: node-lts
+    steps:
+      - checkout
+      - run:
+          name: 'Install'
+          command: npm ci
+      - run:
+          name: 'Test'
+          command: npm run e2e
+
+workflows:
+  build-and-test:
+    jobs:
+      - build
+      - unit
+      - e2e
