@@ -23,14 +23,13 @@ jobs:
           name: 'pwd'
           command: pwd
       - run:
-          name: 'list'
-          command: ls -la
-      - run:
           name: 'Install'
           command: npm ci
       - run:
           name: 'Test'
-          command: npm run test
+          command: npm run test:coverage
+      - store_artifacts:
+          path: coverage
   e2e:
     executor: node-lts
     steps:

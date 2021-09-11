@@ -7,6 +7,7 @@
     "start": "tsc && node dist/index.js",
     "build": "tsc",
     "test": "jest tests",
+    "test:coverage": "jest tests --coverage",
     "e2e": "tap --ts --no-coverage --reporter=list e2e",
     "e2e:coverage": "tap --ts --reporter=list e2e",
     "e2e:report": "tap --ts --coverage-report=html --no-browser --nyc-arg=--report-dir=e2e-coverage e2e"
