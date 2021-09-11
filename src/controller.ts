@@ -11,6 +11,7 @@ import { getEpisodesFromFeed } from './utils/getEpisodesFromFeed';
 import { cleanUrl } from './utils/cleanUrl';
 import { tryParseChapters } from './utils/tryParseChapters';
 import { config } from './utils/config';
+const { version: apiVersion } = require('../package.json');
 
 const client = new PodcastIndexClient({
   key: config.podcastIndex.apiKey,
@@ -224,6 +225,7 @@ export async function getArtwork(
 
 export async function health(request: FastifyRequest, reply: FastifyReply) {
   reply.status(200).send({
+    version: apiVersion,
     uptime: process.uptime(),
     date: new Date().toISOString(),
   });

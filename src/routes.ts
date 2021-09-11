@@ -368,6 +368,10 @@ async function routes(fastify: FastifyInstance) {
             description: 'Successful response',
             type: 'object',
             properties: {
+              version: {
+                type: 'string',
+                description: 'The API version',
+              },
               uptime: {
                 type: 'number',
                 description: 'The amount of time the API has been running',
