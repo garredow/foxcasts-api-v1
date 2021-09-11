@@ -26,12 +26,6 @@ jobs:
           name: 'list'
           command: ls -la
       - run:
-          name: list
-          command: ls -la /tmp/_circleci_local_build_repo
-      - run:
-          name: list
-          command: ls -la /home/circleci/project
-      - run:
           name: 'Install'
           command: npm ci
       - run:
