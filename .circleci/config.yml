@@ -56,7 +56,7 @@ jobs:
           at: .
       - run:
           name: 'Version'
-          command: npx semantic-release
+          command: npx semantic-release -d
   deploy:
     executor: node-lts
     steps:
