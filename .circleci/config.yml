@@ -9,9 +9,9 @@ jobs:
     executor: node-lts
     steps:
       - checkout
-      # - run:
-      #     name: 'Install'
-      #     command: npm ci
+      - run:
+          name: 'Install'
+          command: npm ci
       - persist_to_workspace:
           root: ./
           paths:
