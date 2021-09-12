@@ -15,7 +15,7 @@ jobs:
       - run:
           name: 'Build'
           command: npm run build
-  unit:
+  test:
     executor: node-lts
     steps:
       - checkout
@@ -23,7 +23,10 @@ jobs:
           name: 'Install'
           command: npm ci
       - run:
-          name: Test
+          name: 'E2E Tests'
+          command: npm run e2e
+      - run:
+          name: 'Unit Tests'
           command: npm run test:ci
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/junit/
@@ -33,16 +36,6 @@ jobs:
           path: ./reports/junit
       - store_artifacts:
           path: coverage
-  e2e:
-    executor: node-lts
-    steps:
-      - checkout
-      - run:
-          name: 'Install'
-          command: npm ci
-      - run:
-          name: 'Test'
-          command: npm run e2e
   version:
     executor: node-lts
     steps:
@@ -62,13 +55,12 @@ workflows:
   build-and-test:
     jobs:
       - build
-      - unit
-      - e2e
+      - test
       - version:
+          context: github-versioning
           requires:
             - build
-            - unit
-            - e2e
+            - test
       - deploy:
           requires:
             - version
