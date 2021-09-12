@@ -78,6 +78,7 @@ jobs:
       - run:
           name: 'Deploy'
           command: echo "Perform deploy now"
+      - run: ssh -oStrictHostKeyChecking=no -v $USER@$IP_ADDRESS "./deploy.sh 001"
 
 workflows:
   build-and-test:
@@ -106,6 +107,7 @@ workflows:
                 - main
                 - deploy
       - deploy:
+          context: digital-ocean-deploy
           requires:
             - version
           filters:
