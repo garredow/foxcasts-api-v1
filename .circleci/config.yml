@@ -9,20 +9,23 @@ jobs:
     executor: node-lts
     steps:
       - checkout
-      - run:
-          name: 'Install'
-          command: npm ci
+      # - run:
+      #     name: 'Install'
+      #     command: npm ci
       # - run:
       #     name: 'Build'
       #     command: npm run build
-      - run: mkdir -p workspace
+      - run: mkdir -p /tmp/workspace
       - persist_to_workspace:
-          root: workspace
+          root: /tmp/workspace
           paths:
             - .
       - run:
           name: 'List'
           command: ls -la
+      - run:
+          name: 'List2'
+          command: ls -la /tmp/workspace
   test:
     executor: node-lts
     steps:
