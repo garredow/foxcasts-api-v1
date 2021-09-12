@@ -5,35 +5,34 @@ executors:
       - image: cimg/node:lts
 
 jobs:
-  build:
+  install:
     executor: node-lts
     steps:
       - checkout
       - run:
           name: 'Install'
           command: npm ci
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - ./*
+  build:
+    executor: node-lts
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: 'Build'
           command: npm run build
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths:
-            - node_modules
-            - dist
-      - run:
-          name: 'List'
-          command: ls -la
-  test:
+  unit:
     executor: node-lts
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: .
       - run:
           name: 'List'
           command: ls -la
-      - run:
-          name: 'E2E Tests'
-          command: npm run e2e
       - run:
           name: 'Unit Tests'
           command: npm run test:ci
@@ -45,11 +44,22 @@ jobs:
           path: ./reports/junit
       - store_artifacts:
           path: coverage
+  e2e:
+    executor: node-lts
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: 'List'
+          command: ls -la
+      - run:
+          name: 'E2E Tests'
+          command: npm run e2e
   version:
     executor: node-lts
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: .
       - run:
           name: 'List'
           command: ls -la
@@ -61,7 +71,7 @@ jobs:
     executor: node-lts
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: .
       - run:
           name: 'List'
           command: ls -la
@@ -72,15 +82,22 @@ jobs:
 workflows:
   build-and-test:
     jobs:
-      - build
-      - test:
+      - install
+      - build:
           requires:
-            - build
+            - install
+      - unit:
+          requires:
+            - install
+      - e2e:
+          requires:
+            - install
       - version:
           context: github-versioning
           requires:
             - build
-            - test
+            - unit
+            - e2e
       - deploy:
           requires:
             - version
