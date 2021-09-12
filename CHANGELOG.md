@@ -1,6 +1,18 @@
 # [1.5.0](https://github.com/garredow/foxcasts-api/compare/v1.4.0...v1.5.0) (2021-09-12)
 
 
+### Bug Fixes
+
+* trigger deployment ([4e7506c](https://github.com/garredow/foxcasts-api/commit/4e7506cdf76a06de39a962f7660ef270aca41b31))
+
+
+### Features
+
+* deploy api when new version ([211d582](https://github.com/garredow/foxcasts-api/commit/211d5827e15eff7755a99f12d7b295289f0c5122))
+
+# [1.5.0](https://github.com/garredow/foxcasts-api/compare/v1.4.0...v1.5.0) (2021-09-12)
+
+
 ### Features
 
 * deploy api when new version ([211d582](https://github.com/garredow/foxcasts-api/commit/211d5827e15eff7755a99f12d7b295289f0c5122))
