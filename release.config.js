@@ -17,13 +17,13 @@ module.exports = {
           'echo "From ${lastRelease.version}" && echo "From ${nextRelease.version}"',
       },
     ],
-    [
-      '@semantic-release/github',
-      {
-        successComment: false,
-        failComment: false,
-      },
-    ],
-    '@semantic-release/git',
+    // [
+    //   '@semantic-release/github',
+    //   {
+    //     successComment: false,
+    //     failComment: false,
+    //   },
+    // ],
+    // '@semantic-release/git',
   ],
 };
