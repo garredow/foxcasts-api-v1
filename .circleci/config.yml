@@ -55,6 +55,8 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          command: echo "" > old_version && echo "" > new_version
+      - run:
           name: 'Version'
           command: npx semantic-release -d
       - persist_to_workspace:
@@ -73,7 +75,12 @@ jobs:
             OLD_VERSION=$(cat old_version)
             NEW_VERSION=$(cat new_version)
             echo "From ${OLD_VERSION} to ${NEW_VERSION}"
-            ssh -oStrictHostKeyChecking=no -v $USER@$IP_ADDRESS "./deploy.sh ${NEW_VERSION}"
+            if [[ -z "${NEW_VERSION}" ]]; then
+              echo "No new version. Skip deploy."
+            else
+              echo "Deploying v${NEW_VERSION}"
+              ssh -oStrictHostKeyChecking=no -v $USER@$IP_ADDRESS "./deploy.sh ${NEW_VERSION}"
+            fi
 
 workflows:
   build-and-test:
