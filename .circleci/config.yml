@@ -5,23 +5,26 @@ executors:
       - image: cimg/node:lts
 
 jobs:
-  build:
+  install:
     executor: node-lts
     steps:
       - checkout
       - run:
           name: 'Install'
           command: npm ci
-      - run:
-          name: 'Build'
-          command: npm run build
       - persist_to_workspace:
           root: ./
           paths:
             - ./*
+  build:
+    executor: node-lts
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
       - run:
-          name: 'List'
-          command: ls -la
+          name: 'Build'
+          command: npm run build
   unit:
     executor: node-lts
     steps:
@@ -79,16 +82,20 @@ jobs:
 workflows:
   build-and-test:
     jobs:
-      - build
+      - install
+      - build:
+          requires:
+            - install
       - unit:
           requires:
-            - build
+            - install
       - e2e:
           requires:
-            - build
+            - install
       - version:
           context: github-versioning
           requires:
+            - build
             - unit
             - e2e
       - deploy:
