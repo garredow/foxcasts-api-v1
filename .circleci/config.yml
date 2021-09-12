@@ -55,8 +55,15 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          command: echo "" > old_version && echo "" > new_version
+      - run:
           name: 'Version'
           command: npx semantic-release
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - old_version
+            - new_version
   deploy:
     executor: node-lts
     steps:
@@ -64,7 +71,16 @@ jobs:
           at: .
       - run:
           name: 'Deploy'
-          command: echo "Perform deploy now"
+          command: |
+            OLD_VERSION=$(cat old_version)
+            NEW_VERSION=$(cat new_version)
+            echo "From ${OLD_VERSION} to ${NEW_VERSION}"
+            if [[ -z "${NEW_VERSION}" ]]; then
+              echo "No new version. Skip deploy."
+            else
+              echo "Deploying v${NEW_VERSION}"
+              ssh -oStrictHostKeyChecking=no -v $USER@$IP_ADDRESS ". /home/${USER}/.nvm/nvm.sh; ./scripts/deploy-foxcasts-api.sh v${NEW_VERSION}"
+            fi
 
 workflows:
   build-and-test:
@@ -90,6 +106,7 @@ workflows:
               only:
                 - main
       - deploy:
+          context: digital-ocean-deploy
           requires:
             - version
           filters:

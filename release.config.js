@@ -11,6 +11,13 @@ module.exports = {
       },
     ],
     [
+      '@semantic-release/exec',
+      {
+        prepareCmd:
+          'echo ${lastRelease.version} > old_version && echo ${nextRelease.version} > new_version',
+      },
+    ],
+    [
       '@semantic-release/github',
       {
         successComment: false,
