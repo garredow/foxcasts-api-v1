@@ -9,13 +9,12 @@ jobs:
     executor: node-lts
     steps:
       - checkout
-      # - run:
-      #     name: 'Install'
-      #     command: npm ci
-      # - run:
-      #     name: 'Build'
-      #     command: npm run build
-      - run: mkdir -p /tmp/workspace
+      - run:
+          name: 'Install'
+          command: npm ci
+      - run:
+          name: 'Build'
+          command: npm run build
       - persist_to_workspace:
           root: ./
           paths:
@@ -23,10 +22,7 @@ jobs:
       - run:
           name: 'List'
           command: ls -la
-      - run:
-          name: 'List2'
-          command: ls -la /tmp/workspace
-  test:
+  unit:
     executor: node-lts
     steps:
       - attach_workspace:
@@ -34,25 +30,33 @@ jobs:
       - run:
           name: 'List'
           command: ls -la
-      # - run:
-      #     name: 'E2E Tests'
-      #     command: npm run e2e
-      # - run:
-      #     name: 'Unit Tests'
-      #     command: npm run test:ci
-      #     environment:
-      #       JEST_JUNIT_OUTPUT_DIR: ./reports/junit/
-      # - store_test_results:
-      #     path: ./reports/junit/
-      # - store_artifacts:
-      #     path: ./reports/junit
-      # - store_artifacts:
-      #     path: coverage
+      - run:
+          name: 'Unit Tests'
+          command: npm run test:ci
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/junit/
+      - store_test_results:
+          path: ./reports/junit/
+      - store_artifacts:
+          path: ./reports/junit
+      - store_artifacts:
+          path: coverage
+  e2e:
+    executor: node-lts
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: 'List'
+          command: ls -la
+      - run:
+          name: 'E2E Tests'
+          command: npm run e2e
   version:
     executor: node-lts
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: .
       - run:
           name: 'List'
           command: ls -la
@@ -64,7 +68,7 @@ jobs:
     executor: node-lts
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: .
       - run:
           name: 'List'
           command: ls -la
@@ -76,14 +80,17 @@ workflows:
   build-and-test:
     jobs:
       - build
-      - test:
+      - unit:
+          requires:
+            - build
+      - e2e:
           requires:
             - build
       - version:
           context: github-versioning
           requires:
-            - build
-            - test
+            - unit
+            - e2e
       - deploy:
           requires:
             - version
