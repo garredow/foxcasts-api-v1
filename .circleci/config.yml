@@ -77,8 +77,11 @@ jobs:
           command: ls -la
       - run:
           name: 'Deploy'
-          command: echo "Perform deploy now"
-      - run: ssh -oStrictHostKeyChecking=no -v $USER@$IP_ADDRESS "./deploy.sh 001"
+          command: |
+            OLD_VERSION=$(cat old_version)
+            NEW_VERSION=$(cat new_version)
+            echo "${OLD_VERSION} => ${NEW_VERSION}"
+            ssh -oStrictHostKeyChecking=no -v $USER@$IP_ADDRESS "./deploy.sh 001"
 
 workflows:
   build-and-test:
