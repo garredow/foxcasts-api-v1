@@ -55,10 +55,10 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          command: echo "" > old_version && echo 1.3.0 > new_version
-      # - run:
-      #     name: 'Version'
-      #     command: npx semantic-release -d
+          command: echo "" > old_version && echo "" > new_version
+      - run:
+          name: 'Version'
+          command: npx semantic-release -d
       - persist_to_workspace:
           root: ./
           paths:
@@ -86,23 +86,21 @@ workflows:
   build-and-test:
     jobs:
       - install
-      # - build:
-      #     requires:
-      #       - install
-      # - unit:
-      #     requires:
-      #       - install
-      # - e2e:
-      #     requires:
-      #       - install
+      - build:
+          requires:
+            - install
+      - unit:
+          requires:
+            - install
+      - e2e:
+          requires:
+            - install
       - version:
           context: github-versioning
           requires:
-            - install
-          # requires:
-          #   - build
-          #   - unit
-          #   - e2e
+            - build
+            - unit
+            - e2e
           filters:
             branches:
               only:
