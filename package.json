@@ -17,6 +17,10 @@
   "author": "Garrett Downs",
   "license": "ISC",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/garredow/foxcasts-api.git"
+  },
   "dependencies": {
     "arg": "^5.0.1",
     "dotenv": "^8.6.0",
