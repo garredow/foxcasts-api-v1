@@ -9,9 +9,9 @@ jobs:
     executor: node-lts
     steps:
       - checkout
-      - run:
-          name: 'Install'
-          command: npm ci
+      # - run:
+      #     name: 'Install'
+      #     command: npm ci
       - persist_to_workspace:
           root: ./
           paths:
@@ -54,17 +54,27 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      # - run:
+      #     name: 'Version'
+      #     command: npx semantic-release -d
       - run:
-          name: 'Version'
-          command: npx semantic-release -d
+          command: echo 1.4.0 > old_version && echo 1.5.0 > new_version
       - run:
           name: 'List'
           command: ls -la
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - old_version
+            - new_version
   deploy:
     executor: node-lts
     steps:
       - attach_workspace:
           at: .
+      - run:
+          name: 'List'
+          command: ls -la
       - run:
           name: 'Deploy'
           command: echo "Perform deploy now"

@@ -13,8 +13,8 @@ module.exports = {
     [
       '@semantic-release/exec',
       {
-        verifyConditionsCmd:
-          'echo 1.4.0 > old_version && echo 1.5.0 > new_version ',
+        prepareCmd:
+          'echo ${lastRelease.version} > old_version && echo ${nextRelease.version} > new_version',
         // prepareCmd:
         //   'echo "From ${lastRelease.version}" && echo "From ${nextRelease.version}"',
       },
