@@ -58,7 +58,7 @@ workflows:
       - unit
       - e2e
       - deploy:
-        requires:
-          - build
-          - unit
-          - e2e
+          requires:
+            - build
+            - unit
+            - e2e
