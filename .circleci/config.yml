@@ -43,6 +43,13 @@ jobs:
       - run:
           name: 'Test'
           command: npm run e2e
+  deploy:
+    executor: node-lts
+    steps:
+      - checkout
+      - run:
+          name: 'Deploy'
+          command: echo "Perform deploy now"
 
 workflows:
   build-and-test:
@@ -50,3 +57,8 @@ workflows:
       - build
       - unit
       - e2e
+      - deploy:
+        requires:
+          - build
+          - unit
+          - e2e
