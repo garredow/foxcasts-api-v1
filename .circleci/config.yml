@@ -31,9 +31,6 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: 'List'
-          command: ls -la
-      - run:
           name: 'Unit Tests'
           command: npm run test:ci
           environment:
@@ -50,9 +47,6 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: 'List'
-          command: ls -la
-      - run:
           name: 'E2E Tests'
           command: npm run e2e
   version:
@@ -61,20 +55,13 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: 'List'
-          command: ls -la
-      - run:
           name: 'Version'
-          # command: npx semantic-release -d
-          command: echo "Perform versioning"
+          command: npx semantic-release -d
   deploy:
     executor: node-lts
     steps:
       - attach_workspace:
           at: .
-      - run:
-          name: 'List'
-          command: ls -la
       - run:
           name: 'Deploy'
           command: echo "Perform deploy now"
@@ -98,6 +85,14 @@ workflows:
             - build
             - unit
             - e2e
+          filters:
+            branches:
+              only:
+                - main
       - deploy:
           requires:
             - version
+          filters:
+            branches:
+              only:
+                - main
