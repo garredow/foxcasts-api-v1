@@ -43,6 +43,13 @@ jobs:
       - run:
           name: 'Test'
           command: npm run e2e
+  version:
+    executor: node-lts
+    steps:
+      - checkout
+      - run:
+          name: 'Version'
+          command: npx semantic-release -d
   deploy:
     executor: node-lts
     steps:
@@ -57,8 +64,11 @@ workflows:
       - build
       - unit
       - e2e
-      - deploy:
+      - version:
           requires:
             - build
             - unit
             - e2e
+      - deploy:
+          requires:
+            - version
