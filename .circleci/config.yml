@@ -70,25 +70,26 @@ workflows:
   build-and-test:
     jobs:
       - install
-      - build:
-          requires:
-            - install
-      - unit:
-          requires:
-            - install
-      - e2e:
-          requires:
-            - install
+      # - build:
+      #     requires:
+      #       - install
+      # - unit:
+      #     requires:
+      #       - install
+      # - e2e:
+      #     requires:
+      #       - install
       - version:
           context: github-versioning
-          requires:
-            - build
-            - unit
-            - e2e
+          # requires:
+          #   - build
+          #   - unit
+          #   - e2e
           filters:
             branches:
               only:
                 - main
+                - deploy
       - deploy:
           requires:
             - version
@@ -96,3 +97,4 @@ workflows:
             branches:
               only:
                 - main
+                - deploy
