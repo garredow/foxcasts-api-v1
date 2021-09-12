@@ -57,12 +57,6 @@ jobs:
       - run:
           name: 'Version'
           command: npx semantic-release
-      - run:
-          name: 'Test'
-          command: git status
-      - run:
-          name: 'Test2'
-          command: cat package.json
   deploy:
     executor: node-lts
     steps:
