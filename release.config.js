@@ -15,7 +15,7 @@ module.exports = {
       {
         // prepareCmd:
         //   'echo ${lastRelease.version} > old_version && echo ${nextRelease.version} > new_version',
-        verifyConditions:
+        verifyConditionsCmd:
           'echo 1.4.1 > old_version && echo 1.5.1 > new_version',
       },
     ],
