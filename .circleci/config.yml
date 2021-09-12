@@ -30,7 +30,7 @@ jobs:
     executor: node-lts
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: .
       - run:
           name: 'List'
           command: ls -la
