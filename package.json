@@ -11,7 +11,8 @@
     "test:ci": "jest tests --coverage --ci --runInBand --reporters=default --reporters=jest-junit",
     "e2e": "tap --ts --no-coverage --reporter=list e2e",
     "e2e:coverage": "tap --ts --reporter=list e2e",
-    "e2e:report": "tap --ts --coverage-report=html --no-browser --nyc-arg=--report-dir=e2e-coverage e2e"
+    "e2e:report": "tap --ts --coverage-report=html --no-browser --nyc-arg=--report-dir=e2e-coverage e2e",
+    "commit": "cz"
   },
   "author": "Garrett Downs",
   "license": "ISC",
@@ -44,6 +45,8 @@
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
     "babel-jest": "^27.1.1",
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.3.0",
     "eslint": "^7.32.0",
     "jest": "^27.1.1",
     "jest-junit": "^12.2.0",
