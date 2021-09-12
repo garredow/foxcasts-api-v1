@@ -79,7 +79,7 @@ jobs:
               echo "No new version. Skip deploy."
             else
               echo "Deploying v${NEW_VERSION}"
-              ssh -oStrictHostKeyChecking=no -v $USER@$IP_ADDRESS "./scripts/deploy-foxcasts-api.sh v${NEW_VERSION}"
+              ssh -oStrictHostKeyChecking=no -v $USER@$IP_ADDRESS "./deploy.sh v${NEW_VERSION}"
             fi
 
 workflows:
