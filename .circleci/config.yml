@@ -15,8 +15,9 @@ jobs:
       - run:
           name: 'Build'
           command: npm run build
+      - run: mkdir -p workspace
       - persist_to_workspace:
-          root: /tmp/workspace
+          root: workspace
           paths:
             - node_modules
             - dist
@@ -27,7 +28,7 @@ jobs:
     executor: node-lts
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: workspace
       - run:
           name: 'List'
           command: ls -la
@@ -49,7 +50,7 @@ jobs:
     executor: node-lts
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: workspace
       - run:
           name: 'List'
           command: ls -la
@@ -61,7 +62,7 @@ jobs:
     executor: node-lts
     steps:
       - attach_workspace:
-          at: /tmp/workspace
+          at: workspace
       - run:
           name: 'List'
           command: ls -la
