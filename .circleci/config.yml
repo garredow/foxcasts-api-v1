@@ -15,13 +15,23 @@ jobs:
       - run:
           name: 'Build'
           command: npm run build
+      - run:
+          name: 'List1'
+          command: ls -la
+      - persist_to_workspace:
+          root: '.'
+          paths:
+            - node_modules
+            - dist
+      - run:
+          name: 'List2'
+          command: ls -la
   test:
     executor: node-lts
     steps:
-      - checkout
       - run:
-          name: 'Install'
-          command: npm ci
+          name: 'List'
+          command: ls -la
       - run:
           name: 'E2E Tests'
           command: npm run e2e
@@ -39,14 +49,19 @@ jobs:
   version:
     executor: node-lts
     steps:
-      - checkout
+      - run:
+          name: 'List'
+          command: ls -la
       - run:
           name: 'Version'
-          command: npx semantic-release -d
+          # command: npx semantic-release -d
+          command: echo "Perform versioning"
   deploy:
     executor: node-lts
     steps:
-      - checkout
+      - run:
+          name: 'List'
+          command: ls -la
       - run:
           name: 'Deploy'
           command: echo "Perform deploy now"
@@ -55,7 +70,9 @@ workflows:
   build-and-test:
     jobs:
       - build
-      - test
+      - test:
+          requires:
+            - build
       - version:
           context: github-versioning
           requires:
