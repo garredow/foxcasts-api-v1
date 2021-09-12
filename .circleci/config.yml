@@ -56,7 +56,7 @@ jobs:
           at: .
       - run:
           name: 'Version'
-          command: npx semantic-release -d
+          command: npx semantic-release
       - run:
           name: 'List'
           command: ls -la
