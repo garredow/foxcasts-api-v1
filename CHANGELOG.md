@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/garredow/foxcasts-api/compare/v1.5.0...v1.5.1) (2021-09-18)
+
+
+### Bug Fixes
+
+* fix cors issue ([7d3c9de](https://github.com/garredow/foxcasts-api/commit/7d3c9de68952a3b8e90e3fb088e45efed58b147c))
+
 # [1.5.0](https://github.com/garredow/foxcasts-api/compare/v1.4.0...v1.5.0) (2021-09-12)
 
 
