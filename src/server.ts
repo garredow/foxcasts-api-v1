@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import swagger from 'fastify-swagger';
+import cors from 'fastify-cors';
 // import joiToJson from 'joi-to-json';
 const joiToJson = require('joi-to-json');
 import routes from './routes';
@@ -10,6 +11,10 @@ export function configureServer(options = {}) {
   const fastify = Fastify(options);
 
   fastify.register(authenticate);
+
+  fastify.register(cors, {
+    origin: [/\.foxcasts\.com$/],
+  });
 
   fastify.register(swagger, {
     routePrefix: '/swagger',
