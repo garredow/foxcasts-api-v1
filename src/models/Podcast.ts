@@ -8,4 +8,5 @@ export type Podcast = {
   feedUrl: string;
   lastUpdated?: number;
   categories: string[];
+  trendScore?: number;
 };

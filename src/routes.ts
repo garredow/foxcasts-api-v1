@@ -7,6 +7,9 @@ import {
   getPodcast,
   health,
   search,
+  getTrending,
+  getCategories,
+  getPIStats,
 } from './controller';
 
 async function routes(fastify: FastifyInstance) {
@@ -150,6 +153,79 @@ async function routes(fastify: FastifyInstance) {
           (schema as any).validate(data),
     },
     getPodcast
+  );
+  fastify.get(
+    '/podcasts/trending',
+    {
+      preValidation: [(fastify as any).authenticate],
+      schema: {
+        tags: ['Podcasts'],
+        summary: 'Get trending podcasts',
+        querystring: Joi.object().keys({
+          categories: Joi.string()
+            .optional()
+            .description('An optional comma-separated list of category IDs'),
+        }),
+        response: {
+          200: {
+            description: 'Successful response',
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                podexId: { type: 'integer' },
+                itunesId: { type: 'integer' },
+                title: { type: 'string' },
+                author: { type: 'string' },
+                description: { type: 'string' },
+                artworkUrl: { type: 'string' },
+                feedUrl: { type: 'string' },
+                lastUpdated: { type: 'integer' },
+                categories: { type: 'array', items: { type: 'string' } },
+                trendScore: { type: 'integer' },
+              },
+            },
+          },
+          400: {
+            description: 'Bad request response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+          401: {
+            description: 'Unauthorized response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+          500: {
+            description: 'Failure response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+        },
+        security: [
+          {
+            apiKey: [],
+          },
+        ],
+      },
+      validatorCompiler:
+        ({ schema }) =>
+        (data) =>
+          (schema as any).validate(data),
+    },
+    getTrending
   );
   fastify.get(
     '/episodes',
@@ -356,6 +432,128 @@ async function routes(fastify: FastifyInstance) {
           (schema as any).validate(data),
     },
     getArtwork
+  );
+  fastify.get(
+    '/categories',
+    {
+      preValidation: [(fastify as any).authenticate],
+      schema: {
+        tags: ['Podcasts'],
+        summary: 'Get a list of all categories',
+        response: {
+          200: {
+            description: 'Successful response',
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'integer' },
+                name: { type: 'string' },
+              },
+            },
+          },
+          400: {
+            description: 'Bad request response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+          401: {
+            description: 'Unauthorized response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+          500: {
+            description: 'Failure response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+        },
+        security: [
+          {
+            apiKey: [],
+          },
+        ],
+      },
+      validatorCompiler:
+        ({ schema }) =>
+        (data) =>
+          (schema as any).validate(data),
+    },
+    getCategories
+  );
+  fastify.get(
+    '/pistats',
+    {
+      preValidation: [(fastify as any).authenticate],
+      schema: {
+        tags: ['Meta'],
+        summary: 'Get stats about Podcast Index',
+        response: {
+          200: {
+            description: 'Successful response',
+            type: 'object',
+            properties: {
+              feedCountTotal: { type: 'integer' },
+              episodeCountTotal: { type: 'integer' },
+              feedsWithNewEpisodes3days: { type: 'integer' },
+              feedsWithNewEpisodes10days: { type: 'integer' },
+              feedsWithNewEpisodes30days: { type: 'integer' },
+              feedsWithNewEpisodes90days: { type: 'integer' },
+              feedsWithValueBlocks: { type: 'integer' },
+            },
+          },
+          400: {
+            description: 'Bad request response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+          401: {
+            description: 'Unauthorized response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+          500: {
+            description: 'Failure response',
+            type: 'object',
+            properties: {
+              statusCode: { type: 'integer' },
+              error: { type: 'string' },
+              message: { type: 'string' },
+            },
+          },
+        },
+        security: [
+          {
+            apiKey: [],
+          },
+        ],
+      },
+      validatorCompiler:
+        ({ schema }) =>
+        (data) =>
+          (schema as any).validate(data),
+    },
+    getPIStats
   );
   fastify.get(
     '/health',

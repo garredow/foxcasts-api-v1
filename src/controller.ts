@@ -3,9 +3,15 @@ import fetch from 'node-fetch';
 import PodcastIndexClient from 'podcastdx-client';
 import sharp from 'sharp';
 import jsmediatags from 'jsmediatags';
-import { Episode, Podcast, SearchResult } from './models';
+import { Episode, PIApiTrendingFeed, Podcast, SearchResult } from './models';
 import { getPodcastFromFeed } from './utils/getPodcastFromFeed';
-import { toEpisode, toPodcast, toSearchResult } from './utils/mappers';
+import {
+  toCategory,
+  toEpisode,
+  toPodcast,
+  toSearchResult,
+  toTrendPodcast,
+} from './utils/mappers';
 import formatDate from './utils/formatDate';
 import { getEpisodesFromFeed } from './utils/getEpisodesFromFeed';
 import { cleanUrl } from './utils/cleanUrl';
@@ -40,6 +46,38 @@ export async function search(
     reply
       .code(500)
       .send({ statusCode: 500, error: 'Failed to search', message: '' });
+  }
+}
+
+interface GetTrendingQuery {
+  categories: string;
+}
+interface GetTrendingResponse {
+  feeds: PIApiTrendingFeed[];
+  count: number;
+}
+
+export async function getTrending(
+  request: FastifyRequest<{ Querystring: GetTrendingQuery }>,
+  reply: FastifyReply
+) {
+  try {
+    let url = `/podcasts/trending`;
+    if (request.query.categories) {
+      url = url + `?cat=${request.query.categories}`;
+    }
+    const result: Podcast[] = await client
+      .raw<GetTrendingResponse>(url)
+      .then((res) => res.feeds.map((a) => toTrendPodcast(a)));
+
+    reply.code(200).send(result);
+  } catch (err) {
+    console.error('Failed to get trending podcasts', err);
+    reply.code(500).send({
+      statusCode: 500,
+      error: 'Failed to get trending podcasts',
+      message: '',
+    });
   }
 }
 
@@ -215,6 +253,37 @@ export async function getArtwork(
       .toBuffer();
 
     reply.status(200).header('Content-Type', 'image/png').send(artwork);
+  } catch (err) {
+    console.error('Failed to get artwork', err);
+    reply
+      .status(500)
+      .send({ statusCode: 500, error: 'Failed to get artwork', message: '' });
+  }
+}
+
+export async function getCategories(
+  request: FastifyRequest<{ Querystring: GetArtworkQuery }>,
+  reply: FastifyReply
+) {
+  try {
+    const categories = await client
+      .categories()
+      .then((res) => res.feeds.map((a) => toCategory(a)));
+
+    reply.status(200).send(categories);
+  } catch (err) {
+    console.error('Failed to get artwork', err);
+    reply
+      .status(500)
+      .send({ statusCode: 500, error: 'Failed to get artwork', message: '' });
+  }
+}
+
+export async function getPIStats(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const stats = await client.stats().then((res) => res.stats);
+
+    reply.status(200).send(stats);
   } catch (err) {
     console.error('Failed to get artwork', err);
     reply
