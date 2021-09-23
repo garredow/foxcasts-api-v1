@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/garredow/foxcasts-api/compare/v1.5.1...v1.6.0) (2021-09-23)
+
+
+### Features
+
+* add trending, categories, and stats endpoints ([5da5046](https://github.com/garredow/foxcasts-api/commit/5da5046a6ff48b08e6ae189d2fc8a27ff39244c5))
+
 ## [1.5.1](https://github.com/garredow/foxcasts-api/compare/v1.5.0...v1.5.1) (2021-09-18)
 
 
