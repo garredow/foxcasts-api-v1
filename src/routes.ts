@@ -235,29 +235,36 @@ async function routes(fastify: FastifyInstance) {
     },
   });
 
-  createRoute(fastify, '/health', handleErrors(health), {
-    useAuth: false,
-    tags: ['Meta'],
-    summary: 'Check the health of the API',
-    responseSchema: {
-      description: 'Successful response',
-      type: 'object',
-      properties: {
-        version: {
-          type: 'string',
-          description: 'The API version',
-        },
-        uptime: {
-          type: 'number',
-          description: 'The amount of time the API has been running',
-        },
-        date: {
-          type: 'string',
-          description: 'The current date and time in UTC ISO-8601 format',
+  fastify.get(
+    '/health',
+    {
+      schema: {
+        tags: ['Meta'],
+        summary: 'Check the health of the API',
+        response: {
+          200: {
+            description: 'Successful response',
+            type: 'object',
+            properties: {
+              version: {
+                type: 'string',
+                description: 'The API version',
+              },
+              uptime: {
+                type: 'number',
+                description: 'The amount of time the API has been running',
+              },
+              date: {
+                type: 'string',
+                description: 'The current date and time in UTC ISO-8601 format',
+              },
+            },
+          },
         },
       },
     },
-  });
+    handleErrors(health)
+  );
 }
 
 export default routes;
