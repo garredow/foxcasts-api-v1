@@ -236,7 +236,7 @@ async function routes(fastify: FastifyInstance) {
   });
 
   createRoute(fastify, '/health', handleErrors(health), {
-    useAuth: true,
+    useAuth: false,
     tags: ['Meta'],
     summary: 'Check the health of the API',
     responseSchema: {
