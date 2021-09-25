@@ -32,25 +32,18 @@ interface SearchQuery {
 }
 
 export async function search(
-  request: FastifyRequest<{ Querystring: SearchQuery }>,
-  reply: FastifyReply
+  request: FastifyRequest<{ Querystring: SearchQuery }>
 ) {
-  try {
-    const result: SearchResult[] = await client
-      .search(request.query.query, { max: request.query.count })
-      .then((res) => res.feeds.map((a) => toSearchResult(a)));
+  const result: SearchResult[] = await client
+    .search(request.query.query, { max: request.query.count })
+    .then((res) => res.feeds.map((a) => toSearchResult(a)));
 
-    reply.code(200).send(result);
-  } catch (err) {
-    console.error('Failed to search', err);
-    reply
-      .code(500)
-      .send({ statusCode: 500, error: 'Failed to search', message: '' });
-  }
+  return result;
 }
 
 interface GetTrendingQuery {
-  categories: string;
+  categories?: string;
+  since: number;
 }
 interface GetTrendingResponse {
   feeds: PIApiTrendingFeed[];
@@ -58,27 +51,17 @@ interface GetTrendingResponse {
 }
 
 export async function getTrending(
-  request: FastifyRequest<{ Querystring: GetTrendingQuery }>,
-  reply: FastifyReply
+  request: FastifyRequest<{ Querystring: GetTrendingQuery }>
 ) {
-  try {
-    let url = `/podcasts/trending`;
-    if (request.query.categories) {
-      url = url + `?cat=${request.query.categories}`;
-    }
-    const result: Podcast[] = await client
-      .raw<GetTrendingResponse>(url)
-      .then((res) => res.feeds.map((a) => toTrendPodcast(a)));
-
-    reply.code(200).send(result);
-  } catch (err) {
-    console.error('Failed to get trending podcasts', err);
-    reply.code(500).send({
-      statusCode: 500,
-      error: 'Failed to get trending podcasts',
-      message: '',
-    });
+  let url = `/podcasts/trending?since=${request.query.since}`;
+  if (request.query.categories) {
+    url = url + `&cat=${request.query.categories}`;
   }
+  const result: Podcast[] = await client
+    .raw<GetTrendingResponse>(url)
+    .then((res) => res.feeds.map((a) => toTrendPodcast(a)));
+
+  return result;
 }
 
 interface GetPodcastQuery {
@@ -87,105 +70,87 @@ interface GetPodcastQuery {
 }
 
 export async function getPodcast(
-  request: FastifyRequest<{ Querystring: GetPodcastQuery }>,
-  reply: FastifyReply
+  request: FastifyRequest<{ Querystring: GetPodcastQuery }>
 ) {
-  try {
-    let podcast: Podcast | undefined;
+  let podcast: Podcast | undefined;
 
-    // Try Podcast Index ID
-    if (request.query.id) {
-      await client.podcastById(request.query.id).then((res) => {
-        if (res.feed?.id) {
-          podcast = toPodcast(res.feed);
-        }
-      });
-    }
-
-    // Try Feed URL
-    if (!podcast) {
-      await client.podcastByUrl(request.query.feedUrl!).then((res) => {
-        if (res.feed?.id) {
-          podcast = toPodcast(res.feed);
-        }
-      });
-    }
-
-    // Manually parse the feed XML
-    if (!podcast) {
-      podcast = await getPodcastFromFeed(request.query.feedUrl!);
-    }
-
-    reply.code(200).send(podcast);
-  } catch (err) {
-    console.error('Failed to get podcast', err);
-    reply
-      .code(500)
-      .send({ statusCode: 500, error: 'Failed to get podcast', message: '' });
+  // Try Podcast Index ID
+  if (request.query.id) {
+    await client.podcastById(request.query.id).then((res) => {
+      if (res.feed?.id) {
+        podcast = toPodcast(res.feed);
+      }
+    });
   }
+
+  // Try Feed URL
+  if (!podcast) {
+    await client.podcastByUrl(request.query.feedUrl!).then((res) => {
+      if (res.feed?.id) {
+        podcast = toPodcast(res.feed);
+      }
+    });
+  }
+
+  // Manually parse the feed XML
+  if (!podcast) {
+    podcast = await getPodcastFromFeed(request.query.feedUrl!);
+  }
+
+  return podcast;
 }
 
 interface GetEpisodesQuery {
   podcastId?: number;
   feedUrl?: string;
-  since?: string;
+  since?: number;
   count: number;
 }
 
 export async function getEpisodes(
-  request: FastifyRequest<{ Querystring: GetEpisodesQuery }>,
-  reply: FastifyReply
+  request: FastifyRequest<{ Querystring: GetEpisodesQuery }>
 ) {
-  try {
-    let episodes: Episode[] | null = null;
+  let episodes: Episode[] | null = null;
 
-    // Try Podcast Index ID
-    if (request.query.podcastId) {
-      await client
-        .episodesByFeedId(request.query.podcastId, {
-          max: request.query.count,
-          since: request.query.since
-            ? formatDate.toNumeric(request.query.since)
-            : undefined,
-        })
-        .then((res) => {
-          if (res.items) {
-            episodes = res.items.map((a) => toEpisode(a));
-          }
-        });
-    }
-
-    // Try Feed URL
-    if (episodes === null) {
-      await client
-        .episodesByFeedUrl(request.query.feedUrl!, {
-          max: request.query.count,
-          since: request.query.since
-            ? formatDate.toNumeric(request.query.since)
-            : undefined,
-        })
-        .then((res) => {
-          if (res.items) {
-            episodes = res.items.map((a) => toEpisode(a));
-          }
-        });
-    }
-
-    // Manually parse the feed XML
-    if (episodes === null) {
-      episodes = await getEpisodesFromFeed(request.query.feedUrl!, {
-        episodeLimit: request.query.count,
+  // Try Podcast Index ID
+  if (request.query.podcastId) {
+    await client
+      .episodesByFeedId(request.query.podcastId, {
+        max: request.query.count,
         since: request.query.since,
+      })
+      .then((res) => {
+        if (res.items) {
+          episodes = res.items.map((a) => toEpisode(a));
+        }
       });
-    }
-
-    reply.code(200).send(episodes);
-  } catch (err) {
-    console.error('Failed to get episodes', err);
-    reply
-      .code(500)
-      .send({ statusCode: 500, error: 'Failed to get episodes', message: '' });
   }
+
+  // Try Feed URL
+  if (episodes === null) {
+    await client
+      .episodesByFeedUrl(request.query.feedUrl!, {
+        max: request.query.count,
+        since: request.query.since,
+      })
+      .then((res) => {
+        if (res.items) {
+          episodes = res.items.map((a) => toEpisode(a));
+        }
+      });
+  }
+
+  // Manually parse the feed XML
+  if (episodes === null) {
+    episodes = await getEpisodesFromFeed(request.query.feedUrl!, {
+      episodeLimit: request.query.count,
+      since: request.query.since
+        ? new Date(request.query.since).toISOString()
+        : undefined,
+    });
+  }
+
+  return episodes;
 }
 
 interface ChaptersQuery {
@@ -194,44 +159,36 @@ interface ChaptersQuery {
 }
 
 export async function getChapters(
-  request: FastifyRequest<{ Querystring: ChaptersQuery }>,
-  reply: FastifyReply
+  request: FastifyRequest<{ Querystring: ChaptersQuery }>
 ) {
-  try {
-    if (request.query.episodeId === 0 && !request.query.fileUrl) {
-      return reply.status(200).send([]);
-    }
-
-    const episode = request.query.episodeId
-      ? (await client.episodeById(request.query.episodeId)).episode
-      : null;
-
-    if (episode?.chaptersUrl) {
-      const result = await fetch(episode.chaptersUrl).then((res) => res.json());
-      return reply.status(200).send(result?.chapters || []);
-    }
-
-    // jsmediatags doesn't seem to like a lot of redirects, so let's
-    // try to clean up this URL a bit
-    const url = episode?.enclosureUrl || request.query.fileUrl;
-    if (!url) {
-      return reply.status(200).send([]);
-    }
-    const cleanerUrl = cleanUrl(url);
-    const id3Obj = await new Promise((resolve, reject) => {
-      new jsmediatags.Reader(cleanerUrl).setTagsToRead(['CHAP']).read({
-        onSuccess: resolve,
-        onError: reject,
-      });
-    });
-    const chapters = tryParseChapters(id3Obj);
-    reply.status(200).send(chapters);
-  } catch (err) {
-    console.error('Failed to get chapters', err);
-    reply
-      .status(500)
-      .send({ statusCode: 500, error: 'Failed to get chapters', message: '' });
+  if (request.query.episodeId === 0 && !request.query.fileUrl) {
+    return [];
   }
+
+  const episode = request.query.episodeId
+    ? (await client.episodeById(request.query.episodeId)).episode
+    : null;
+
+  if (episode?.chaptersUrl) {
+    const result = await fetch(episode.chaptersUrl).then((res) => res.json());
+    return result?.chapters || [];
+  }
+
+  // jsmediatags doesn't seem to like a lot of redirects, so let's
+  // try to clean up this URL a bit
+  const url = episode?.enclosureUrl || request.query.fileUrl;
+  if (!url) {
+    return [];
+  }
+  const cleanerUrl = cleanUrl(url);
+  const id3Obj = await new Promise((resolve, reject) => {
+    new jsmediatags.Reader(cleanerUrl).setTagsToRead(['CHAP']).read({
+      onSuccess: resolve,
+      onError: reject,
+    });
+  });
+  const chapters = tryParseChapters(id3Obj);
+  return chapters;
 }
 
 interface GetArtworkQuery {
@@ -254,46 +211,29 @@ export async function getArtwork(
 
     reply.status(200).header('Content-Type', 'image/png').send(artwork);
   } catch (err) {
-    console.error('Failed to get artwork', err);
+    request.log.error((err as Error)?.message);
     reply
       .status(500)
-      .send({ statusCode: 500, error: 'Failed to get artwork', message: '' });
+      .send({ statusCode: 500, error: 'API Error', message: '' });
   }
 }
 
 export async function getCategories(
-  request: FastifyRequest<{ Querystring: GetArtworkQuery }>,
-  reply: FastifyReply
+  request: FastifyRequest<{ Querystring: GetArtworkQuery }>
 ) {
-  try {
-    const categories = await client
-      .categories()
-      .then((res) => res.feeds.map((a) => toCategory(a)));
+  const categories = await client
+    .categories()
+    .then((res) => res.feeds.map((a) => toCategory(a)));
 
-    reply.status(200).send(categories);
-  } catch (err) {
-    console.error('Failed to get artwork', err);
-    reply
-      .status(500)
-      .send({ statusCode: 500, error: 'Failed to get artwork', message: '' });
-  }
+  return categories;
 }
 
-export async function getPIStats(request: FastifyRequest, reply: FastifyReply) {
-  try {
-    const stats = await client.stats().then((res) => res.stats);
-
-    reply.status(200).send(stats);
-  } catch (err) {
-    console.error('Failed to get artwork', err);
-    reply
-      .status(500)
-      .send({ statusCode: 500, error: 'Failed to get artwork', message: '' });
-  }
+export function getPIStats() {
+  return client.stats().then((res) => res.stats);
 }
 
-export async function health(request: FastifyRequest, reply: FastifyReply) {
-  reply.status(200).send({
+export function health() {
+  return Promise.resolve({
     version: apiVersion,
     uptime: process.uptime(),
     date: new Date().toISOString(),
