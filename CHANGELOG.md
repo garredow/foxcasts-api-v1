@@ -1,3 +1,17 @@
+# [1.7.0](https://github.com/garredow/foxcasts-api/compare/v1.6.0...v1.7.0) (2021-09-25)
+
+
+### Bug Fixes
+
+* fix e2e test ([5056ee2](https://github.com/garredow/foxcasts-api/commit/5056ee2eda7d4c65bb647ae11a1cca5ced4906af))
+* remove auth from health endpoint ([a3c2694](https://github.com/garredow/foxcasts-api/commit/a3c2694c0a9238903a6793773e1d5b6ebc4c0531))
+
+
+### Features
+
+* add since option to trending podcasts ([f06235c](https://github.com/garredow/foxcasts-api/commit/f06235c320802ad4fb110e9cdb5b4497a626a36c))
+* clean up routes ([d382670](https://github.com/garredow/foxcasts-api/commit/d382670fe205793acb4c1ae9cc85cf1c42d044bb))
+
 # [1.6.0](https://github.com/garredow/foxcasts-api/compare/v1.5.1...v1.6.0) (2021-09-23)
 
 
