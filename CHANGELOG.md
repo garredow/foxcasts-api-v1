@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/garredow/foxcasts-api/compare/v1.7.0...v1.8.0) (2021-10-21)
+
+
+### Features
+
+* add artwork palette endpoint ([13483a5](https://github.com/garredow/foxcasts-api/commit/13483a5492d12bdd49100a525c612ead9087a5c2))
+
 # [1.7.0](https://github.com/garredow/foxcasts-api/compare/v1.6.0...v1.7.0) (2021-09-25)
 
 
