@@ -10,6 +10,7 @@ import {
   getTrending,
   getCategories,
   getPIStats,
+  getArtworkPalette,
 } from './controller';
 import { createRoute } from './utils/createRoute';
 
@@ -121,15 +122,38 @@ async function routes(fastify: FastifyInstance) {
   createRoute(fastify, '/artwork', getArtwork, {
     useAuth: true,
     tags: ['Podcasts'],
-    summary: 'Get the artwork for a podcast in a desired size',
+    summary: 'Get the artwork for a podcast in a desired size and style',
     queryStringSchema: Joi.object().keys({
       imageUrl: Joi.string().required(),
       size: Joi.number().max(512).default(40).optional(),
+      blur: Joi.number().min(1).max(100).optional(),
+      greyscale: Joi.boolean().default(false).optional(),
     }),
     responseSchema: {
       description: 'Successful response',
       type: 'string',
       format: 'binary',
+    },
+  });
+
+  createRoute(fastify, '/artwork/palette', getArtworkPalette, {
+    useAuth: true,
+    tags: ['Podcasts'],
+    summary: 'Get the palette from an image',
+    queryStringSchema: Joi.object().keys({
+      imageUrl: Joi.string().required(),
+    }),
+    responseSchema: {
+      description: 'Successful response',
+      type: 'object',
+      properties: {
+        darkMuted: { type: 'string' },
+        darkVibrant: { type: 'string' },
+        lightMuted: { type: 'string' },
+        lightVibrant: { type: 'string' },
+        muted: { type: 'string' },
+        vibrant: { type: 'string' },
+      },
     },
   });
 

@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import PodcastIndexClient from 'podcastdx-client';
 import sharp from 'sharp';
 import jsmediatags from 'jsmediatags';
+import Vibrant from 'node-vibrant';
 import { Episode, PIApiTrendingFeed, Podcast, SearchResult } from './models';
 import { getPodcastFromFeed } from './utils/getPodcastFromFeed';
 import {
@@ -194,6 +195,8 @@ export async function getChapters(
 interface GetArtworkQuery {
   imageUrl: string;
   size: number;
+  blur?: number;
+  greyscale: boolean;
 }
 
 export async function getArtwork(
@@ -204,12 +207,48 @@ export async function getArtwork(
     const image = await fetch(request.query.imageUrl).then((res) =>
       res.buffer()
     );
-    const artwork = await sharp(image)
-      .resize(request.query.size)
-      .png()
-      .toBuffer();
 
-    reply.status(200).header('Content-Type', 'image/png').send(artwork);
+    const artwork = sharp(image).resize(request.query.size);
+
+    if (request.query.blur) {
+      artwork.blur(request.query.blur);
+    }
+    if (request.query.greyscale) {
+      artwork.greyscale(request.query.greyscale);
+    }
+
+    const result = await artwork.png().toBuffer();
+
+    reply.status(200).header('Content-Type', 'image/png').send(result);
+  } catch (err) {
+    request.log.error((err as Error)?.message);
+    reply
+      .status(500)
+      .send({ statusCode: 500, error: 'API Error', message: '' });
+  }
+}
+
+interface GetArtworkColorsQuery {
+  imageUrl: string;
+}
+
+export async function getArtworkPalette(
+  request: FastifyRequest<{ Querystring: GetArtworkColorsQuery }>,
+  reply: FastifyReply
+) {
+  try {
+    const image = await fetch(request.query.imageUrl).then((res) =>
+      res.buffer()
+    );
+    const palette = await Vibrant.from(image).getPalette();
+    reply.status(200).send({
+      darkMuted: palette.DarkMuted?.hex,
+      darkVibrant: palette.DarkVibrant?.hex,
+      lightMuted: palette.LightMuted?.hex,
+      lightVibrant: palette.LightVibrant?.hex,
+      muted: palette.Muted?.hex,
+      vibrant: palette.Vibrant?.hex,
+    });
   } catch (err) {
     request.log.error((err as Error)?.message);
     reply
