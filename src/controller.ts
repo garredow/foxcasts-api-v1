@@ -228,6 +228,51 @@ export async function getArtwork(
   }
 }
 
+interface GetArtworkWithPaletteRequest {
+  imageUrl: string;
+  size: number;
+  blur?: number;
+  greyscale: boolean;
+}
+
+export async function getArtworkWithPalette(
+  request: FastifyRequest<{ Querystring: GetArtworkWithPaletteRequest }>,
+  reply: FastifyReply
+) {
+  try {
+    const image = await fetch(request.query.imageUrl).then((res) =>
+      res.buffer()
+    );
+
+    const artwork = sharp(image).resize(request.query.size);
+
+    if (request.query.blur) {
+      artwork.blur(request.query.blur);
+    }
+    if (request.query.greyscale) {
+      artwork.greyscale(request.query.greyscale);
+    }
+
+    const result = await artwork.png().toBuffer();
+    const palette = await Vibrant.from(result).getPalette();
+
+    reply.status(200).send({
+      imageData: `data:image/png;base64,${await result.toString('base64')}`,
+      darkMuted: palette.DarkMuted?.hex,
+      darkVibrant: palette.DarkVibrant?.hex,
+      lightMuted: palette.LightMuted?.hex,
+      lightVibrant: palette.LightVibrant?.hex,
+      muted: palette.Muted?.hex,
+      vibrant: palette.Vibrant?.hex,
+    });
+  } catch (err) {
+    request.log.error((err as Error)?.message);
+    reply
+      .status(500)
+      .send({ statusCode: 500, error: 'API Error', message: '' });
+  }
+}
+
 interface GetArtworkColorsQuery {
   imageUrl: string;
 }

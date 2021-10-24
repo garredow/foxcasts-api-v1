@@ -11,6 +11,7 @@ import {
   getCategories,
   getPIStats,
   getArtworkPalette,
+  getArtworkWithPalette,
 } from './controller';
 import { createRoute } from './utils/createRoute';
 
@@ -133,6 +134,32 @@ async function routes(fastify: FastifyInstance) {
       description: 'Successful response',
       type: 'string',
       format: 'binary',
+    },
+  });
+
+  createRoute(fastify, '/artworkWithPalette', getArtworkWithPalette, {
+    useAuth: true,
+    tags: ['Podcasts'],
+    summary:
+      'Get the artwork and palette for a podcast in a desired size and style',
+    queryStringSchema: Joi.object().keys({
+      imageUrl: Joi.string().required(),
+      size: Joi.number().max(512).default(40).optional(),
+      blur: Joi.number().min(1).max(100).optional(),
+      greyscale: Joi.boolean().default(false).optional(),
+    }),
+    responseSchema: {
+      description: 'Successful response',
+      type: 'object',
+      properties: {
+        imageData: { type: 'string' },
+        darkMuted: { type: 'string' },
+        darkVibrant: { type: 'string' },
+        lightMuted: { type: 'string' },
+        lightVibrant: { type: 'string' },
+        muted: { type: 'string' },
+        vibrant: { type: 'string' },
+      },
     },
   });
 
