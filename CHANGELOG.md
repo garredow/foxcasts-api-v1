@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/garredow/foxcasts-api/compare/v1.8.0...v1.9.0) (2021-10-24)
+
+
+### Features
+
+* add endpoint to get both artwork and palette ([81aa04e](https://github.com/garredow/foxcasts-api/commit/81aa04efec93f5e9bcda67390122c9c4bc043b1c))
+
 # [1.8.0](https://github.com/garredow/foxcasts-api/compare/v1.7.0...v1.8.0) (2021-10-21)
 
 
