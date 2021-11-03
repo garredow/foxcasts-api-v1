@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/garredow/foxcasts-api/compare/v1.9.0...v1.9.1) (2021-11-03)
+
+
+### Bug Fixes
+
+* import node-fetch lib ([dcaf79c](https://github.com/garredow/foxcasts-api/commit/dcaf79ce9377f566d93548e33e370c29e77aae3c))
+
 # [1.9.0](https://github.com/garredow/foxcasts-api/compare/v1.8.0...v1.9.0) (2021-10-24)
 
 
