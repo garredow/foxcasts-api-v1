@@ -1,5 +1,6 @@
-import { Episode } from '../models';
+import fetch from 'node-fetch';
 import { DOMParser } from 'xmldom';
+import { Episode } from '../models';
 import { getDurationInSeconds } from './getDurationInSeconds';
 import xml from './xml';
 

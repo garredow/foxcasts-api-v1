@@ -1,6 +1,6 @@
-import { Episode, Podcast } from '../models';
+import fetch from 'node-fetch';
 import { DOMParser } from 'xmldom';
-import { getDurationInSeconds } from './getDurationInSeconds';
+import { Podcast } from '../models';
 import xml from './xml';
 
 export async function getPodcastFromFeed(feedUrl: string): Promise<Podcast> {
