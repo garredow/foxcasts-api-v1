@@ -1,3 +1,5 @@
+import { Soundbite } from './Soundbite';
+
 export type Episode = {
   podexId?: number;
   guid: string;
@@ -10,4 +12,10 @@ export type Episode = {
   fileUrl: string;
   chaptersUrl?: string;
   transcriptUrl?: string;
+  season?: number;
+  episode?: number;
+  episodeType?: 'full' | 'trailer' | 'bonus' | string;
+  soundbite?: Soundbite;
+  soundbites?: Soundbite[];
+  imageUrl?: string;
 };

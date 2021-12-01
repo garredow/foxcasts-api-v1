@@ -13,9 +13,7 @@ export async function getPodcastFromFeed(feedUrl: string): Promise<Podcast> {
 
   const podTitle = xml.getText(xmlDoc, 'title');
   const podAuthor = xml.getText(xmlDoc, 'itunes:author');
-  const podArtwork =
-    xml.getAttribute(xmlDoc, 'itunes:image', 'href') ||
-    xml.getText(xmlDoc, 'url');
+  const podArtwork = xml.getAttribute(xmlDoc, 'itunes:image', 'href') || xml.getText(xmlDoc, 'url');
   const podSummary = xml.getText(xmlDoc, 'itunes:summary', 'description');
 
   if (!podTitle || !podAuthor || !podArtwork) {
@@ -28,7 +26,6 @@ export async function getPodcastFromFeed(feedUrl: string): Promise<Podcast> {
     description: podSummary || '',
     feedUrl: feedUrl,
     artworkUrl: podArtwork,
-    categories: [],
   };
 
   return result;

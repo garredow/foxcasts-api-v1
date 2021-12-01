@@ -4,13 +4,7 @@ import {
   PIApiFeed,
   PIApiPodcast,
 } from 'podcastdx-client/dist/src/types';
-import {
-  Category,
-  Episode,
-  PIApiTrendingFeed,
-  Podcast,
-  SearchResult,
-} from '../models';
+import { Category, Episode, PIApiTrendingFeed, Podcast, SearchResult } from '../models';
 import formatDate from './formatDate';
 
 export function toSearchResult(source: PIApiFeed): SearchResult {
@@ -20,6 +14,7 @@ export function toSearchResult(source: PIApiFeed): SearchResult {
     author: source.author,
     feedUrl: source.url,
     artworkUrl: source.artwork || source.image,
+    imageUrlHash: source.imageUrlHash,
   };
 }
 
@@ -32,7 +27,7 @@ export function toTrendPodcast(source: PIApiTrendingFeed): Podcast {
     description: source.description,
     artworkUrl: source.image,
     feedUrl: source.url,
-    categories: source.categories ? Object.values(source.categories) : [],
+    categories: source.categories ? Object.keys(source.categories).map((a) => Number(a)) : [],
     trendScore: source.trendScore,
   };
 }
@@ -47,7 +42,8 @@ export function toPodcast(source: PIApiPodcast): Podcast {
     artworkUrl: source.artwork,
     feedUrl: source.url,
     lastUpdated: source.lastUpdateTime,
-    categories: source.categories ? Object.values(source.categories) : [],
+    categories: source.categories ? Object.keys(source.categories).map((a) => Number(a)) : [],
+    imageUrlHash: source.imageUrlHash,
   };
 }
 
@@ -64,6 +60,12 @@ export function toEpisode(source: PIApiEpisodeInfo): Episode {
     fileUrl: source.enclosureUrl,
     chaptersUrl: source.chaptersUrl || undefined,
     transcriptUrl: source.transcriptUrl || undefined,
+    season: source.season || undefined,
+    episode: source.episode || undefined,
+    episodeType: source.episodeType || undefined,
+    soundbite: source.soundbite,
+    soundbites: source.soundbites || [],
+    imageUrl: source.image || undefined,
   };
 }
 

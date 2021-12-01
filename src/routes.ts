@@ -2,16 +2,16 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import Joi from 'joi';
 import {
   getArtwork,
-  getEpisodes,
-  getChapters,
-  getPodcast,
-  health,
-  search,
-  getTrending,
-  getCategories,
-  getPIStats,
   getArtworkPalette,
   getArtworkWithPalette,
+  getCategories,
+  getChapters,
+  getEpisodes,
+  getPIStats,
+  getPodcast,
+  getTrending,
+  health,
+  search,
 } from './controller';
 import { createRoute } from './utils/createRoute';
 
@@ -30,6 +30,69 @@ const handleErrors =
       });
 
 async function routes(fastify: FastifyInstance) {
+  fastify.addSchema({
+    $id: 'podcast',
+    type: 'object',
+    properties: {
+      podexId: { type: 'integer' },
+      itunesId: { type: 'integer' },
+      title: { type: 'string' },
+      author: { type: 'string' },
+      description: { type: 'string' },
+      artworkUrl: { type: 'string' },
+      feedUrl: { type: 'string' },
+      lastUpdated: { type: 'integer' },
+      categories: {
+        type: 'array',
+        items: {
+          type: 'integer',
+        },
+      },
+      trendScore: { type: 'integer' },
+      imageUrlHash: { type: 'integer' },
+    },
+  });
+
+  fastify.addSchema({
+    $id: 'soundbite',
+    type: 'object',
+    properties: {
+      startTime: { type: 'integer' },
+      duration: { type: 'integer' },
+      title: { type: 'string' },
+    },
+    nullable: true,
+  });
+
+  fastify.addSchema({
+    $id: 'episode',
+    type: 'object',
+    properties: {
+      podexId: { type: 'integer' },
+      guid: { type: 'string' },
+      date: { type: 'string' },
+      title: { type: 'string' },
+      description: { type: 'string' },
+      duration: { type: 'integer' },
+      fileSize: { type: 'integer' },
+      fileType: { type: 'string' },
+      fileUrl: { type: 'string' },
+      chaptersUrl: { type: 'string' },
+      transcriptUrl: { type: 'string' },
+      season: { type: 'integer' },
+      episode: { type: 'integer' },
+      episodeType: { type: 'string' },
+      soundbite: { $ref: 'soundbite#' },
+      soundbites: {
+        type: 'array',
+        items: {
+          $ref: 'soundbite#',
+        },
+      },
+      imageUrl: { type: 'string' },
+    },
+  });
+
   createRoute(fastify, '/podcasts/search', handleErrors(search), {
     tags: ['Podcasts'],
     summary: 'Search for a podcast',
@@ -48,6 +111,7 @@ async function routes(fastify: FastifyInstance) {
           author: { type: 'string' },
           feedUrl: { type: 'string' },
           artworkUrl: { type: 'string' },
+          imageUrlHash: { type: 'integer' },
         },
       },
     },
@@ -72,19 +136,7 @@ async function routes(fastify: FastifyInstance) {
       description: 'Successful response',
       type: 'array',
       items: {
-        type: 'object',
-        properties: {
-          podexId: { type: 'integer' },
-          itunesId: { type: 'integer' },
-          title: { type: 'string' },
-          author: { type: 'string' },
-          description: { type: 'string' },
-          artworkUrl: { type: 'string' },
-          feedUrl: { type: 'string' },
-          lastUpdated: { type: 'integer' },
-          categories: { type: 'array', items: { type: 'string' } },
-          trendScore: { type: 'integer' },
-        },
+        $ref: 'podcast#',
       },
     },
   });
@@ -105,18 +157,7 @@ async function routes(fastify: FastifyInstance) {
     }),
     responseSchema: {
       description: 'Successful response',
-      type: 'object',
-      properties: {
-        podexId: { type: 'integer' },
-        itunesId: { type: 'integer' },
-        title: { type: 'string' },
-        author: { type: 'string' },
-        description: { type: 'string' },
-        artworkUrl: { type: 'string' },
-        feedUrl: { type: 'string' },
-        lastUpdated: { type: 'integer' },
-        categories: { type: 'array', items: { type: 'string' } },
-      },
+      $ref: 'podcast#',
     },
   });
 
@@ -140,8 +181,7 @@ async function routes(fastify: FastifyInstance) {
   createRoute(fastify, '/artworkWithPalette', getArtworkWithPalette, {
     useAuth: true,
     tags: ['Podcasts'],
-    summary:
-      'Get the artwork and palette for a podcast in a desired size and style',
+    summary: 'Get the artwork and palette for a podcast in a desired size and style',
     queryStringSchema: Joi.object().keys({
       imageUrl: Joi.string().required(),
       size: Joi.number().max(512).default(40).optional(),
@@ -223,20 +263,7 @@ async function routes(fastify: FastifyInstance) {
       description: 'Successful response',
       type: 'array',
       items: {
-        type: 'object',
-        properties: {
-          podexId: { type: 'integer' },
-          guid: { type: 'string' },
-          date: { type: 'string' },
-          title: { type: 'string' },
-          description: { type: 'string' },
-          duration: { type: 'integer' },
-          fileSize: { type: 'integer' },
-          fileType: { type: 'string' },
-          fileUrl: { type: 'string' },
-          chaptersUrl: { type: 'string' },
-          transcriptUrl: { type: 'string' },
-        },
+        $ref: 'episode#',
       },
     },
   });

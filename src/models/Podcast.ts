@@ -7,6 +7,7 @@ export type Podcast = {
   artworkUrl: string;
   feedUrl: string;
   lastUpdated?: number;
-  categories: string[];
+  categories?: number[];
   trendScore?: number;
+  imageUrlHash?: number;
 };

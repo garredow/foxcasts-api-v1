@@ -4,4 +4,5 @@ export type SearchResult = {
   podexId: number;
   feedUrl: string;
   artworkUrl: string;
+  imageUrlHash?: number;
 };
