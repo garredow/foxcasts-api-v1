@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/garredow/foxcasts-api-v1/compare/v1.10.0...v1.10.1) (2022-04-10)
+
+
+### Bug Fixes
+
+* rename and update cicd ([f712eb2](https://github.com/garredow/foxcasts-api-v1/commit/f712eb2580620075ee5b937d79bc467fe84fe222))
+
 # [1.10.0](https://github.com/garredow/foxcasts-api/compare/v1.9.1...v1.10.0) (2021-12-01)
 
 ### Features
