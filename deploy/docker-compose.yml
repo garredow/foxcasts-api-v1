@@ -1,0 +1,28 @@
+version: "3"
+
+networks:
+  web:
+    external: true
+
+services:
+  foxcasts-api-v1:
+    image: $DOCKER_IMAGE
+    environment:
+      SERVER_PORT: $SERVER_PORT
+      LOGGER_ENABLED: $LOGGER_ENABLED
+      LOGGER_LEVEL: $LOGGER_LEVEL
+      API_KEY: $API_KEY
+      API_SECRET: $API_SECRET
+      SWAGGER_HOST: $SWAGGER_HOST
+      SWAGGER_SCHEMES: $SWAGGER_SCHEMES
+      AUTH_ENABLED: $AUTH_ENABLED
+      JWT_SECRET: $JWT_SECRET
+      ALLOWED_TOKENS: $ALLOWED_TOKENS
+    labels:
+      - traefik.http.routers.foxcasts-api-v1.rule=Host(`${TRAEFIK_HOST}`)
+      - traefik.http.routers.foxcasts-api-v1.tls=true
+      - traefik.http.routers.foxcasts-api-v1.tls.certresolver=lets-encrypt
+      - traefik.port=80
+      - traefik.http.services.foxcasts-api-v1.loadbalancer.server.port=${SERVER_PORT}
+    networks:
+      - web

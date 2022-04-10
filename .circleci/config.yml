@@ -1,12 +1,12 @@
 version: 2.1
 executors:
-  node-lts:
+  builder:
     docker:
-      - image: cimg/node:lts
+      - image: circleci/node:16.13.1
 
 jobs:
   install:
-    executor: node-lts
+    executor: builder
     steps:
       - checkout
       - run:
@@ -17,7 +17,7 @@ jobs:
           paths:
             - ./*
   build:
-    executor: node-lts
+    executor: builder
     steps:
       - checkout
       - attach_workspace:
@@ -26,7 +26,7 @@ jobs:
           name: 'Build'
           command: npm run build
   unit:
-    executor: node-lts
+    executor: builder
     steps:
       - attach_workspace:
           at: .
@@ -42,7 +42,7 @@ jobs:
       - store_artifacts:
           path: coverage
   e2e:
-    executor: node-lts
+    executor: builder
     steps:
       - attach_workspace:
           at: .
@@ -50,7 +50,7 @@ jobs:
           name: 'E2E Tests'
           command: npm run e2e
   version:
-    executor: node-lts
+    executor: builder
     steps:
       - attach_workspace:
           at: .
@@ -62,10 +62,33 @@ jobs:
       - persist_to_workspace:
           root: ./
           paths:
+            - package.json
             - old_version
             - new_version
+  build-docker:
+    executor: builder
+    steps:
+      - setup_remote_docker:
+          version: 20.10.11
+      - attach_workspace:
+          at: .
+      - run:
+          name: 'Build Docker Image'
+          command: |
+            OLD_VERSION=$(cat old_version)
+            NEW_VERSION=$(cat new_version)
+            echo "From ${OLD_VERSION} to ${NEW_VERSION}"
+            if [[ -z "${NEW_VERSION}" ]]; then
+              echo "No new version. Skip docker build."
+            else
+              echo "Building garredow/foxcasts-api-v1:${NEW_VERSION}"
+              echo $(cat package.json)
+              echo $DOCKER_TOKEN | docker login -u $DOCKER_USERNAME --password-stdin
+              docker build -t garredow/foxcasts-api-v1:$NEW_VERSION .
+              docker push garredow/foxcasts-api-v1:$NEW_VERSION
+            fi
   deploy:
-    executor: node-lts
+    executor: builder
     steps:
       - attach_workspace:
           at: .
@@ -79,7 +102,7 @@ jobs:
               echo "No new version. Skip deploy."
             else
               echo "Deploying v${NEW_VERSION}"
-              ssh -oStrictHostKeyChecking=no -v $USER@$IP_ADDRESS ". /home/${USER}/.nvm/nvm.sh; ./scripts/deploy-foxcasts-api.sh v${NEW_VERSION}"
+              ssh -oStrictHostKeyChecking=no -v $DO_USER@$DO_IP_ADDRESS "./apps/foxcasts-api-v1/install.sh garredow/foxcasts-api-v1:${NEW_VERSION}"
             fi
 
 workflows:
@@ -105,10 +128,18 @@ workflows:
             branches:
               only:
                 - main
-      - deploy:
-          context: digital-ocean-deploy
+      - build-docker:
+          context: docker-hub
           requires:
             - version
+          filters:
+            branches:
+              only:
+                - main
+      - deploy:
+          context: digital-ocean
+          requires:
+            - build-docker
           filters:
             branches:
               only:

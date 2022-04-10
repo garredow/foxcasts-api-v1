@@ -1,6 +1,6 @@
 # Foxcasts API
 
-[![CircleCI](https://circleci.com/gh/garredow/foxcasts-api/tree/main.svg?style=svg)](https://circleci.com/gh/garredow/foxcasts-api/tree/main)
+[![CircleCI](https://circleci.com/gh/garredow/foxcasts-api-v1/tree/main.svg?style=svg)](https://circleci.com/gh/garredow/foxcasts-api-v1/tree/main)
 
 This API was created to move processing off device and onto a more powerful server, especially useful for low power devices like those that run KaiOS. It currently powers Foxcasts Lite.
 

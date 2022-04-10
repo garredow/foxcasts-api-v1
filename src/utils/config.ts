@@ -13,6 +13,7 @@ enum LogLevel {
 }
 
 export type Config = {
+  serverPort: number;
   logger: {
     enabled: boolean;
     level: `${LogLevel}`;
@@ -34,11 +35,10 @@ export type Config = {
 };
 
 export const config: Config = {
+  serverPort: Number(process.env.SERVER_PORT) || 3000,
   logger: {
     enabled: parseBool(process.env.LOGGER_ENABLED, true),
-    level: Object.values(LogLevel).includes(
-      process.env.LOGGER_LEVEL as LogLevel
-    )
+    level: Object.values(LogLevel).includes(process.env.LOGGER_LEVEL as LogLevel)
       ? (process.env.LOGGER_LEVEL as LogLevel)
       : 'info',
     file: process.env.LOGGER_FILE || undefined,
@@ -48,7 +48,7 @@ export const config: Config = {
     apiSecret: process.env.API_SECRET || '',
   },
   swagger: {
-    host: process.env.SWAGGER_HOST || 'localhost:3000',
+    host: process.env.SWAGGER_HOST || `localhost:${Number(process.env.SERVER_PORT) || 3000}`,
     schemes: process.env.SWAGGER_SCHEMES?.split(',') || ['http'],
   },
   authorization: {

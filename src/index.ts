@@ -1,15 +1,9 @@
-import arg from 'arg';
-import { config } from './utils/config';
 import { configureServer } from './server';
-
-const args = arg({
-  '--port': Number,
-  '-p': '--port',
-});
+import { config } from './utils/config';
 
 const server = configureServer({
   logger: {
-    name: 'foxcasts-api',
+    name: 'foxcasts-api-v1',
     level: config.logger.level,
     file: config.logger.file,
     formatters: {
@@ -21,7 +15,7 @@ const server = configureServer({
   },
 });
 
-server.listen(args['--port'] || 3000, (err) => {
+server.listen(config.serverPort, '0.0.0.0', (err) => {
   if (err) {
     console.log(err);
     process.exit(1);
