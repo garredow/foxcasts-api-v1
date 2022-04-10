@@ -1,4 +1,8 @@
-## [1.9.1](https://github.com/garredow/foxcasts-api-v1/compare/v1.9.0...v1.9.1) (2021-11-03)
+# [1.10.0](https://github.com/garredow/foxcasts-api/compare/v1.9.1...v1.10.0) (2021-12-01)
+
+### Features
+
+* add new properties to podcast and episode ([62083ee](https://github.com/garredow/foxcasts-api/commit/62083eea64ce2c0f3ca6ce9539496bca7f9d3740))
 
 ### Bug Fixes
 
