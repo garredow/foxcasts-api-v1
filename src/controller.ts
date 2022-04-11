@@ -1,24 +1,19 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
+import jsmediatags from 'jsmediatags';
 import fetch from 'node-fetch';
+import Vibrant from 'node-vibrant';
 import PodcastIndexClient from 'podcastdx-client';
 import sharp from 'sharp';
-import jsmediatags from 'jsmediatags';
-import Vibrant from 'node-vibrant';
 import { Episode, PIApiTrendingFeed, Podcast, SearchResult } from './models';
-import { getPodcastFromFeed } from './utils/getPodcastFromFeed';
-import {
-  toCategory,
-  toEpisode,
-  toPodcast,
-  toSearchResult,
-  toTrendPodcast,
-} from './utils/mappers';
-import formatDate from './utils/formatDate';
-import { getEpisodesFromFeed } from './utils/getEpisodesFromFeed';
 import { cleanUrl } from './utils/cleanUrl';
-import { tryParseChapters } from './utils/tryParseChapters';
 import { config } from './utils/config';
+import { getEpisodesFromFeed } from './utils/getEpisodesFromFeed';
+import { getPodcastFromFeed } from './utils/getPodcastFromFeed';
+import { toCategory, toEpisode, toPodcast, toSearchResult, toTrendPodcast } from './utils/mappers';
+import { tryParseChapters } from './utils/tryParseChapters';
 const { version: apiVersion } = require('../package.json');
+
+console.log('Booted with config', config);
 
 const client = new PodcastIndexClient({
   key: config.podcastIndex.apiKey,
@@ -32,9 +27,7 @@ interface SearchQuery {
   count: number;
 }
 
-export async function search(
-  request: FastifyRequest<{ Querystring: SearchQuery }>
-) {
+export async function search(request: FastifyRequest<{ Querystring: SearchQuery }>) {
   const result: SearchResult[] = await client
     .search(request.query.query, { max: request.query.count })
     .then((res) => res.feeds.map((a) => toSearchResult(a)));
@@ -51,9 +44,7 @@ interface GetTrendingResponse {
   count: number;
 }
 
-export async function getTrending(
-  request: FastifyRequest<{ Querystring: GetTrendingQuery }>
-) {
+export async function getTrending(request: FastifyRequest<{ Querystring: GetTrendingQuery }>) {
   let url = `/podcasts/trending?since=${request.query.since}`;
   if (request.query.categories) {
     url = url + `&cat=${request.query.categories}`;
@@ -70,9 +61,7 @@ interface GetPodcastQuery {
   feedUrl?: string;
 }
 
-export async function getPodcast(
-  request: FastifyRequest<{ Querystring: GetPodcastQuery }>
-) {
+export async function getPodcast(request: FastifyRequest<{ Querystring: GetPodcastQuery }>) {
   let podcast: Podcast | undefined;
 
   // Try Podcast Index ID
@@ -108,9 +97,7 @@ interface GetEpisodesQuery {
   count: number;
 }
 
-export async function getEpisodes(
-  request: FastifyRequest<{ Querystring: GetEpisodesQuery }>
-) {
+export async function getEpisodes(request: FastifyRequest<{ Querystring: GetEpisodesQuery }>) {
   let episodes: Episode[] | null = null;
 
   // Try Podcast Index ID
@@ -145,9 +132,7 @@ export async function getEpisodes(
   if (episodes === null) {
     episodes = await getEpisodesFromFeed(request.query.feedUrl!, {
       episodeLimit: request.query.count,
-      since: request.query.since
-        ? new Date(request.query.since).toISOString()
-        : undefined,
+      since: request.query.since ? new Date(request.query.since).toISOString() : undefined,
     });
   }
 
@@ -159,9 +144,7 @@ interface ChaptersQuery {
   fileUrl?: string;
 }
 
-export async function getChapters(
-  request: FastifyRequest<{ Querystring: ChaptersQuery }>
-) {
+export async function getChapters(request: FastifyRequest<{ Querystring: ChaptersQuery }>) {
   if (request.query.episodeId === 0 && !request.query.fileUrl) {
     return [];
   }
@@ -204,9 +187,7 @@ export async function getArtwork(
   reply: FastifyReply
 ) {
   try {
-    const image = await fetch(request.query.imageUrl).then((res) =>
-      res.buffer()
-    );
+    const image = await fetch(request.query.imageUrl).then((res) => res.buffer());
 
     const artwork = sharp(image).resize(request.query.size);
 
@@ -222,9 +203,7 @@ export async function getArtwork(
     reply.status(200).header('Content-Type', 'image/png').send(result);
   } catch (err) {
     request.log.error((err as Error)?.message);
-    reply
-      .status(500)
-      .send({ statusCode: 500, error: 'API Error', message: '' });
+    reply.status(500).send({ statusCode: 500, error: 'API Error', message: '' });
   }
 }
 
@@ -240,9 +219,7 @@ export async function getArtworkWithPalette(
   reply: FastifyReply
 ) {
   try {
-    const image = await fetch(request.query.imageUrl).then((res) =>
-      res.buffer()
-    );
+    const image = await fetch(request.query.imageUrl).then((res) => res.buffer());
 
     const artwork = sharp(image).resize(request.query.size);
 
@@ -267,9 +244,7 @@ export async function getArtworkWithPalette(
     });
   } catch (err) {
     request.log.error((err as Error)?.message);
-    reply
-      .status(500)
-      .send({ statusCode: 500, error: 'API Error', message: '' });
+    reply.status(500).send({ statusCode: 500, error: 'API Error', message: '' });
   }
 }
 
@@ -282,9 +257,7 @@ export async function getArtworkPalette(
   reply: FastifyReply
 ) {
   try {
-    const image = await fetch(request.query.imageUrl).then((res) =>
-      res.buffer()
-    );
+    const image = await fetch(request.query.imageUrl).then((res) => res.buffer());
     const palette = await Vibrant.from(image).getPalette();
     reply.status(200).send({
       darkMuted: palette.DarkMuted?.hex,
@@ -296,18 +269,12 @@ export async function getArtworkPalette(
     });
   } catch (err) {
     request.log.error((err as Error)?.message);
-    reply
-      .status(500)
-      .send({ statusCode: 500, error: 'API Error', message: '' });
+    reply.status(500).send({ statusCode: 500, error: 'API Error', message: '' });
   }
 }
 
-export async function getCategories(
-  request: FastifyRequest<{ Querystring: GetArtworkQuery }>
-) {
-  const categories = await client
-    .categories()
-    .then((res) => res.feeds.map((a) => toCategory(a)));
+export async function getCategories(request: FastifyRequest<{ Querystring: GetArtworkQuery }>) {
+  const categories = await client.categories().then((res) => res.feeds.map((a) => toCategory(a)));
 
   return categories;
 }
