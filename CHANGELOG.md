@@ -1,3 +1,10 @@
+## [1.10.2](https://github.com/garredow/foxcasts-api-v1/compare/v1.10.1...v1.10.2) (2022-04-11)
+
+
+### Bug Fixes
+
+* test config ([c92e3fe](https://github.com/garredow/foxcasts-api-v1/commit/c92e3feb47907d410f7fc20546132cad80a183ea))
+
 ## [1.10.1](https://github.com/garredow/foxcasts-api-v1/compare/v1.10.0...v1.10.1) (2022-04-10)
 
 
