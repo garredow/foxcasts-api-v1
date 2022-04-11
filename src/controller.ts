@@ -13,8 +13,6 @@ import { toCategory, toEpisode, toPodcast, toSearchResult, toTrendPodcast } from
 import { tryParseChapters } from './utils/tryParseChapters';
 const { version: apiVersion } = require('../package.json');
 
-console.log('Booted with config', config);
-
 const client = new PodcastIndexClient({
   key: config.podcastIndex.apiKey,
   secret: config.podcastIndex.apiSecret,
