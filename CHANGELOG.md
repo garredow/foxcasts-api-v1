@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/garredow/foxcasts-api-v1/compare/v1.10.2...v1.11.0) (2022-04-11)
+
+
+### Features
+
+* add new relic monitoring ([90f4276](https://github.com/garredow/foxcasts-api-v1/commit/90f4276ad1a08288bb689819814af52ea1928d3a))
+
 ## [1.10.2](https://github.com/garredow/foxcasts-api-v1/compare/v1.10.1...v1.10.2) (2022-04-11)
 
 
