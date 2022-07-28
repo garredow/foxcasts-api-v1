@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import Joi from 'joi';
+import joiToJson from 'joi-to-json';
 
 type Options = {
   tags: string[];
@@ -18,7 +19,7 @@ export function createRoute(
   const schema = {
     tags: options.tags,
     summary: options.summary,
-    querystring: options.queryStringSchema,
+    querystring: options.queryStringSchema ? joiToJson(options.queryStringSchema) : undefined,
     response: {
       200: options.responseSchema,
       400: {
@@ -58,16 +59,5 @@ export function createRoute(
       : [],
   };
 
-  fastify.get(
-    route,
-    {
-      preValidation: [(fastify as any).authenticate],
-      schema,
-      validatorCompiler:
-        ({ schema }) =>
-        (data) =>
-          (schema as any).validate(data),
-    },
-    controllerFn
-  );
+  fastify.get(route, { schema }, controllerFn);
 }

@@ -1,16 +1,33 @@
-import Fastify from 'fastify';
-import swagger from 'fastify-swagger';
-import cors from 'fastify-cors';
-// import joiToJson from 'joi-to-json';
-const joiToJson = require('joi-to-json');
+import cors from '@fastify/cors';
+import jwt from '@fastify/jwt';
+import swagger from '@fastify/swagger';
+import Fastify, { FastifyServerOptions } from 'fastify';
+import joiToJson from 'joi-to-json';
 import routes from './routes';
 import { config } from './utils/config';
-import authenticate from './authenticate';
 
-export function configureServer(options = {}) {
+export function configureServer(options: FastifyServerOptions = {}) {
   const fastify = Fastify(options);
 
-  fastify.register(authenticate);
+  fastify.register(jwt, {
+    secret: config.authorization.jwtSecret,
+    trusted: async function validateToken(request) {
+      const allowList = config.authorization.allowedTokens;
+      const token = request.headers.authorization?.split(' ')[1];
+      if (!token) return false;
+      return allowList.includes(token);
+    },
+  });
+
+  fastify.addHook('onRequest', async (request, reply) => {
+    if (request.routerPath === '/health') return;
+
+    try {
+      await request.jwtVerify({});
+    } catch (err) {
+      reply.send(err);
+    }
+  });
 
   fastify.register(cors, {
     origin: [/\.foxcasts\.com$/],
@@ -48,12 +65,7 @@ export function configureServer(options = {}) {
     transformStaticCSP: (header) => header,
     exposeRoute: true,
     transform: (schema: any) => {
-      const {
-        params = undefined,
-        body = undefined,
-        querystring = undefined,
-        ...others
-      } = schema;
+      const { params = undefined, body = undefined, querystring = undefined, ...others } = schema;
       const transformed = { ...others };
       if (params) transformed.params = joiToJson(params);
       if (body) transformed.body = joiToJson(body);
