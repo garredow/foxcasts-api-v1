@@ -128,19 +128,19 @@ workflows:
             branches:
               only:
                 - main
-      - build-docker:
-          context: docker-hub
-          requires:
-            - version
-          filters:
-            branches:
-              only:
-                - main
-      - deploy:
-          context: digital-ocean
-          requires:
-            - build-docker
-          filters:
-            branches:
-              only:
-                - main
+      # - build-docker:
+      #     context: docker-hub
+      #     requires:
+      #       - version
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main
+      # - deploy:
+      #     context: digital-ocean
+      #     requires:
+      #       - build-docker
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main
