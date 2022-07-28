@@ -1,3 +1,15 @@
+# [1.12.0](https://github.com/garredow/foxcasts-api-v1/compare/v1.11.0...v1.12.0) (2022-07-28)
+
+
+### Bug Fixes
+
+* fix jest issue ([22a27de](https://github.com/garredow/foxcasts-api-v1/commit/22a27deeaabc57f0448ebc5b11b353680c048069))
+
+
+### Features
+
+* upgrade to fastify v4 ([62274d8](https://github.com/garredow/foxcasts-api-v1/commit/62274d8b000e06a30f4e31e2a5fdaafdd783c434))
+
 # [1.11.0](https://github.com/garredow/foxcasts-api-v1/compare/v1.10.2...v1.11.0) (2022-04-11)
 
 
