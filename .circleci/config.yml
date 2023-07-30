@@ -102,7 +102,7 @@ jobs:
               echo "No new version. Skip deploy."
             else
               echo "Deploying v${NEW_VERSION}"
-              ssh -oStrictHostKeyChecking=no -v $DO_USER@$DO_IP_ADDRESS "./apps/foxcasts-api-v1/install.sh garredow/foxcasts-api-v1:${NEW_VERSION}"
+              ssh -oStrictHostKeyChecking=no -v $AWS_USER@$AWS_IP_ADDRESS "./apps/foxcasts-api-v1/install.sh garredow/foxcasts-api-v1:${NEW_VERSION}"
             fi
 
 workflows:
@@ -137,7 +137,7 @@ workflows:
       #         only:
       #           - main
       # - deploy:
-      #     context: digital-ocean
+      #     context: aws
       #     requires:
       #       - build-docker
       #     filters:

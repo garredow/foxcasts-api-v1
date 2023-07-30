@@ -12,6 +12,7 @@ export function configureServer(options: FastifyServerOptions = {}) {
   fastify.register(jwt, {
     secret: config.authorization.jwtSecret,
     trusted: async function validateToken(request) {
+      if (!config.authorization.enabled) return true;
       const allowList = config.authorization.allowedTokens;
       const token = request.headers.authorization?.split(' ')[1];
       if (!token) return false;
@@ -20,6 +21,7 @@ export function configureServer(options: FastifyServerOptions = {}) {
   });
 
   fastify.addHook('onRequest', async (request, reply) => {
+    if (!config.authorization.enabled) return;
     if (request.routerPath === '/health') return;
 
     try {
