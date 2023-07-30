@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/garredow/foxcasts-api-v1/compare/v1.12.0...v1.12.1) (2023-07-30)
+
+
+### Bug Fixes
+
+* adjust jet auth ([2eb79a6](https://github.com/garredow/foxcasts-api-v1/commit/2eb79a6eabf2ebcc2c5110be5c246d826f683553))
+
 # [1.12.0](https://github.com/garredow/foxcasts-api-v1/compare/v1.11.0...v1.12.0) (2022-07-28)
 
 
